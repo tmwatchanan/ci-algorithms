@@ -9,7 +9,7 @@
 const int NUM_HIDDEN_NODES[] = {0};
 #define NUM_OUTPUT_NODES 1
 int NUM_HIDDEN_LAYERS = 0;
-int NUM_LAYERS = 2; // 2 layers, input and output
+int NUM_LAYERS = 3; // 3 layers, input vector, input layer and output layer
 int *NUM_NODES;
 
 double UnitStep(double net);
@@ -73,45 +73,34 @@ void InitializeWeights(double ***array)
 
 void InitializeOutputsAndBias(double **y, double *inputs, int inputs_size)
 {
-
-    // 0,1,...,L layers
-    int numLayers = NUM_LAYERS + 1;
     // Initialize L + 1 layers
-    y = (double **) malloc (sizeof(double **) * numLayers);
+    y = (double **) malloc (sizeof(double **) * NUM_LAYERS);
 
     // Input vectors
     printf("inputs_size = %d\n", inputs_size);
     y[0] = (double *) malloc(sizeof(double*) * inputs_size);
     for (int j = 0; j < inputs_size; ++j)
     {
-        printf("inputs[%d] = %f\n", j, inputs[j]);
         y[0][j] = inputs[j];
+        printf("y[%d][%d] = %f\n", 0, j, y[0][j]);
     }
 
     // Initialize nodes
-    int last_layer = SIZE_OF(NUM_NODES);
-    for (int l = 0; l < last_layer; ++l)
+    for (int l = 1; l < NUM_LAYERS; ++l)
     {
         // [Input & Hidden & Output] nodes
-        y[l + 1] = (double *) malloc(sizeof(double*) * (NUM_NODES[l] + 1));
-        y[l + 1][NUM_NODES[l]] = -1; // bias
+        y[l] = (double *) malloc(sizeof(double*) * (NUM_NODES[l] + 1));
+        printf("y[%d] size = %d\n", l, NUM_NODES[l] + 1);
+        y[l][NUM_NODES[l]] = -1; // bias
     }
 
-    for (int l = 0; l <= last_layer; ++l)
+    printf("NUM_LAYERS = %d\n", NUM_LAYERS);
+    for (int l = 0; l < NUM_LAYERS; ++l)
     {
-        if (l == 0)
+        // printf("NUM_NODES[%d] = %d\n", l, NUM_NODES[l]);
+        for (int j = 0; j < NUM_NODES[l]; ++j)
         {
-            for (int j = 0; j < inputs_size; ++j)
-            {
-                printf("y[%d][%d] = %f\n", l, j, y[l][j]);
-            }
-        }
-        else
-        {
-            for (int j = 0; j < NUM_NODES[l - 1]; ++j)
-            {
-                printf("y[%d][%d] = %f\n", l, j, y[l][j]);
-            }
+            printf("y[%d][%d] = %f\n", l, j, y[l][j]);
         }
     }
 
@@ -159,17 +148,17 @@ int main()
     NUM_LAYERS += NUM_HIDDEN_LAYERS;
 
     NUM_NODES = (int *)malloc(sizeof(int)*NUM_LAYERS);
-    NUM_NODES[0] = NUM_INPUT_NODES;
-    for (int a = 1; a <= NUM_HIDDEN_LAYERS; ++a)
+    NUM_NODES[0] = NUM_NODES[1] = NUM_INPUT_NODES;
+    for (int a = 0; a < NUM_HIDDEN_LAYERS; ++a)
     {
-        NUM_NODES[a] = NUM_HIDDEN_NODES[a];
+        NUM_NODES[a + 2] = NUM_HIDDEN_NODES[a];
     }
     NUM_NODES[NUM_LAYERS - 1] = NUM_OUTPUT_NODES;
 
-    // for (int i = 0; i < SIZE_OF(NUM_NODES); ++i)
-    // {
-    //     printf("NUM_NODES[%d] = %d\n", i, NUM_NODES[i]);
-    // }
+    for (int l = 0; l < NUM_LAYERS; ++l)
+    {
+        printf("NUM_NODES[%d] = %d\n", l, NUM_NODES[l]);
+    }
 
     InitializeWeights(weights);
     int inputs_size = 2;
