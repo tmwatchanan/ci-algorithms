@@ -120,14 +120,15 @@ double** InitializeOutputsAndBias(double **y, double *inputs, int inputs_size)
     return y;
 }
 
-double Perceptron(double *x, double *w)
+double Perceptron(double *x, double *w, int layer)
 {
     for (int i = 0; i < 2; ++i)
     {
         printf("x[%d] = %f\n", i, x[i]);
     }
     double net = 0;
-    for (int i = 0; i <= SIZE_OF(x) + 1; ++i)
+    printf("NUM_NODES[%d] = %d\n", layer, NUM_NODES[layer]);
+    for (int i = 0; i < NUM_NODES[layer] + 1; ++i)
     {
         printf("%f x %f = %f\n", x[i], w[i], x[i] * w[i]);
         net += x[i] * w[i];
@@ -176,7 +177,7 @@ void FeedForward(double *inputs, int inputs_size)
         for (int j = 0; j < NUM_NODES[l]; ++j)
         {
             printf("l = %d\n", l);
-            outputs[l][j] = Perceptron(outputs[l - 1], weights[l][j]);
+            outputs[l][j] = Perceptron(outputs[l - 1], weights[l][j], l - 1);
             if (l == 2 && j == 0)
             {
                 printf("outputs[%d][%d] = %f\n", l, j, outputs[l][j]);
