@@ -63,15 +63,6 @@ double*** InitializeWeights(double ***array)
         }
     }
 
-    array[OUTPUT_LAYER] = (double **) malloc(sizeof(double*) * (NUM_NODES[OUTPUT_LAYER]));
-    for (int j = 0; j < NUM_NODES[OUTPUT_LAYER]; ++j)
-    {
-        array[OUTPUT_LAYER][j] = (double *) malloc(sizeof(double) * (NUM_NODES[OUTPUT_LAYER - 1])); // +1 for bias
-        // 0,1,...,N-1, N <-- bias
-        for (int i = 0 ; i < NUM_NODES[OUTPUT_LAYER - 1]; ++i)
-            array[OUTPUT_LAYER][j][i] = RandomWeight();
-    }
-
     for (int l = 1; l < NUM_LAYERS; ++l)
     {
         for (int j = 0; j < NUM_NODES[l] - 1; ++j)
@@ -93,8 +84,7 @@ double** InitializeNets(double **nets)
 
     for (int l = 1; l < NUM_LAYERS; ++l)
     {
-        int numNodes = (l != OUTPUT_LAYER ? NUM_NODES[l] : NUM_OUTPUT_NODES);
-        nets[l] = (double *) malloc(sizeof(double *) * numNodes);
+        nets[l] = (double *) malloc(sizeof(double *) * NUM_NODES[l] - 1);
     }
 }
 
@@ -124,9 +114,9 @@ double** InitializeOutputsAndBias(double **y, double *inputs, int inputs_size)
     return y;
 }
 
-double* InitializeErrors(int num_nodes)
+double* InitializeErrors()
 {
-    double* errors = (double *) malloc (sizeof(double) * num_nodes);
+    double* errors = (double *) malloc (sizeof(double) * NUM_OUTPUT_NODES);
     return errors;
 }
 
@@ -219,8 +209,7 @@ double** InitializeLocalGradients(double **local_gradients)
 
     for (int l = 1; l < NUM_LAYERS; ++l)
     {
-        int numNodes = (l != OUTPUT_LAYER ? NUM_NODES[l] : NUM_OUTPUT_NODES);
-        local_gradients[l] = (double *) malloc(sizeof(double *) * numNodes);
+        local_gradients[l] = (double *) malloc(sizeof(double *) * NUM_NODES[l] - 1);
     }
     return local_gradients;
 }
@@ -255,11 +244,11 @@ int main()
     int inputs_size = 2;
     double *inputs = (double *) malloc(inputs_size * sizeof(double));
     inputs[0] = 1;
-    inputs[1] = 1;
+    inputs[1] = 0;
 
     int outputs_size = 1;
     double *desired_outputs = (double *) malloc(sizeof(double) * outputs_size);
-    desired_outputs[0] = 0;
+    desired_outputs[0] = 1;
 
     // Number of layers
     for (int a = 0; a < SIZE_OF(NUM_HIDDEN_NODES); ++a)
@@ -285,7 +274,7 @@ int main()
     weights = InitializeWeights(weights);
     nets = InitializeNets(nets);
     outputs = InitializeOutputsAndBias(outputs, inputs, inputs_size);
-    errors = InitializeErrors(NUM_OUTPUT_NODES);
+    errors = InitializeErrors();
     local_gradients = InitializeLocalGradients(local_gradients);
 
     printf("-------------------\n");
