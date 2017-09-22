@@ -16,12 +16,20 @@ int OUTPUT_LAYER;
 #define BIAS_VALUE 1
 
 double UnitStep(double net);
+double Sigmoid(double v);
+double DerivativeSigmoid(double v);
 #define ACTIVATION_FUNCTION(input) UnitStep((input))
+#define DERIVATIVE_FUNCTION(input) DerivativeSigmoid((input))
 
 double ***weights;
 double ***weights_old;
+double **nets;
 double **outputs;
 double *errors;
+double AverageError;
+double **local_gradients;
+
+#define LEARNING_RATE 0.6
 
 double RandomWeight()
 {
@@ -42,7 +50,7 @@ double*** InitializeWeights(double ***array)
     array = (double ***) malloc (sizeof(double ***) * NUM_LAYERS);
 
     // Hidden Layers
-    for (int l = 1; l < NUM_LAYERS - 1; ++l)
+    for (int l = 1; l < NUM_LAYERS; ++l)
     {
         // Initialize nodes
         array[l] = (double **) malloc(sizeof(double*) * (NUM_NODES[l] - 1));
@@ -77,6 +85,19 @@ double*** InitializeWeights(double ***array)
     return array;
 }
 
+
+double** InitializeNets(double **nets)
+{
+    // Initialize L + 1 layers (0,1,...,L-1)
+    nets = (double **) malloc (sizeof(double **) * NUM_LAYERS);
+
+    for (int l = 1; l < NUM_LAYERS; ++l)
+    {
+        int numNodes = (l != OUTPUT_LAYER ? NUM_NODES[l] : NUM_OUTPUT_NODES);
+        nets[l] = (double *) malloc(sizeof(double *) * numNodes);
+    }
+}
+
 double** InitializeOutputsAndBias(double **y, double *inputs, int inputs_size)
 {
     // Initialize L + 1 layers (0,1,...,L-1)
@@ -109,7 +130,7 @@ double* InitializeErrors(int num_nodes)
     return errors;
 }
 
-double Perceptron(double *x, double *w, int layer)
+double Perceptron(double *x, double *w, int layer, int node)
 {
     // for (int i = 0; i < 2; ++i)
     // {
@@ -121,6 +142,7 @@ double Perceptron(double *x, double *w, int layer)
         printf("%f x %f = %f\n", x[i], w[i], x[i] * w[i]);
         net += x[i] * w[i];
     }
+    // nets[layer][node] = net;
     printf("net = %f | outputs = %f\n", net, ACTIVATION_FUNCTION(net));
     return ACTIVATION_FUNCTION(net);
 }
@@ -131,6 +153,16 @@ double UnitStep(double net)
     else if (net == 0) return net / 2;
     else return 0;
     // return (net > 0 ? 1 : -1);
+}
+
+double Sigmoid(double v)
+{
+    return 1 / (1 + exp(-v));
+}
+
+double DerivativeSigmoid(double v)
+{
+    return v * (1 - v);
 }
 
 double* FeedForward(double *inputs, int inputs_size, double* desired_outputs, double* errors)
@@ -146,40 +178,74 @@ double* FeedForward(double *inputs, int inputs_size, double* desired_outputs, do
     weights[2][0][2] = -0.5;
 
 
-    for (int l = 1; l < NUM_LAYERS; ++l)
-    {
-        for (int j = 0; j < NUM_NODES[l] - 1; ++j)
-        {
-            for (int i = 0; i < NUM_NODES[l - 1]; ++i) // also bias
-            {
-                printf("weights[%d][%d][%d] = %f\n", l, j, i, weights[l][j][i]);
-            }
-        }
-    }
+    // for (int l = 1; l < NUM_LAYERS; ++l)
+    // {
+    //     for (int j = 0; j < NUM_NODES[l] - 1; ++j)
+    //     {
+    //         for (int i = 0; i < NUM_NODES[l - 1]; ++i) // also bias
+    //         {
+    //             printf("weights[%d][%d][%d] = %f\n", l, j, i, weights[l][j][i]);
+    //         }
+    //     }
+    // }
     for (int l = 1; l < NUM_LAYERS; ++l)
     {
         printf("NUM_NODES[%d] - 1 = %d\n", l, NUM_NODES[l] - 1);
         for (int j = 0; j < NUM_NODES[l] - 1; ++j)
         {
-            outputs[l][j] = Perceptron(outputs[l - 1], weights[l][j], l - 1);
+            outputs[l][j] = Perceptron(outputs[l - 1], weights[l][j], l - 1, j);
         }
     }
 
-    for (int j = 0; j < NUM_OUTPUT_NODES - 1; ++j)
+    AverageError = 0;
+    for (int j = 0; j < NUM_OUTPUT_NODES; ++j)
     {
         printf("errors[%d] = %f\n", j, errors[j]);
         printf("outputs[%d][%d] = %f\n", OUTPUT_LAYER, j, outputs[OUTPUT_LAYER][j]);
         printf("desired_outputs[%d] = %f\n", j, desired_outputs[j]);
         errors[j] = outputs[OUTPUT_LAYER][j] - desired_outputs[j];
-        printf("errors[d] = %f\n", j, errors[j]);
+        AverageError += errors[j] * errors[j];
+        printf("errors[%d] = %f\n", j, errors[j]);
     }
+    AverageError /= 2;
 
     return errors;
 }
 
+double** InitializeLocalGradients(double **local_gradients)
+{
+    // Initialize L + 1 layers (0,1,...,L-1)
+    local_gradients = (double **) malloc (sizeof(double **) * NUM_LAYERS);
+
+    for (int l = 1; l < NUM_LAYERS; ++l)
+    {
+        int numNodes = (l != OUTPUT_LAYER ? NUM_NODES[l] : NUM_OUTPUT_NODES);
+        local_gradients[l] = (double *) malloc(sizeof(double *) * numNodes);
+    }
+    return local_gradients;
+}
+
 void BackPropagation()
 {
-    
+    // Local gradient at output layer
+    for (int j = 0; j < NUM_OUTPUT_NODES; ++j)
+    {
+        local_gradients[OUTPUT_LAYER][j] = errors[j] * DerivativeSigmoid(nets[OUTPUT_LAYER][j]);
+    }
+    // Local gradient at hidden layers
+    for (int l = OUTPUT_LAYER - 1; l > 0; ++l)
+    {
+        for (int j = 0; j < NUM_NODES[l]; ++j)
+        {
+            int numNodes = (l + 1 == OUTPUT_LAYER ? NUM_NODES[l + 1] + 1 : NUM_NODES[l + 1]);
+            double sum_gradients = 0;
+            for (int k = 0; k < numNodes; ++k)
+            {
+                sum_gradients += (local_gradients[l + 1][k] * weights[l + 1][k][j]);
+            }
+            local_gradients[l][j] = LEARNING_RATE * DerivativeSigmoid(nets[l][j]) * sum_gradients;
+        }
+    }
 }
 
 int main()
@@ -188,12 +254,12 @@ int main()
 
     int inputs_size = 2;
     double *inputs = (double *) malloc(inputs_size * sizeof(double));
-    inputs[0] = 0;
+    inputs[0] = 1;
     inputs[1] = 1;
 
     int outputs_size = 1;
     double *desired_outputs = (double *) malloc(sizeof(double) * outputs_size);
-    desired_outputs[0] = 1;
+    desired_outputs[0] = 0;
 
     // Number of layers
     for (int a = 0; a < SIZE_OF(NUM_HIDDEN_NODES); ++a)
@@ -213,12 +279,14 @@ int main()
         NUM_NODES[a + 1] = NUM_HIDDEN_NODES[a] + 1; // +1 for bias
     }
     NUM_NODES[OUTPUT_LAYER] = outputs_size + 1;
-    NUM_OUTPUT_NODES = NUM_NODES[OUTPUT_LAYER];
+    NUM_OUTPUT_NODES = outputs_size; //NUM_NODES[OUTPUT_LAYER] - 1
 
     weights_old = InitializeWeights(weights_old);
     weights = InitializeWeights(weights);
+    nets = InitializeNets(nets);
     outputs = InitializeOutputsAndBias(outputs, inputs, inputs_size);
-    errors = InitializeErrors(NUM_OUTPUT_NODES - 1);
+    errors = InitializeErrors(NUM_OUTPUT_NODES);
+    local_gradients = InitializeLocalGradients(local_gradients);
 
     printf("-------------------\n");
 
