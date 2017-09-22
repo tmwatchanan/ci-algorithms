@@ -6,10 +6,10 @@
 #define SIZE_OF(array) sizeof((array))/sizeof((array)[0])
 
 #define NUM_INPUT_NODES 2
-const int NUM_HIDDEN_NODES[] = {0};
+const int NUM_HIDDEN_NODES[] = {2};
 #define NUM_OUTPUT_NODES 1
 int NUM_HIDDEN_LAYERS = 0;
-int NUM_LAYERS = 3; // 3 layers, input vector, input layer and output layer
+int NUM_LAYERS = 2; // 2 layers, input layer and output layer
 int *NUM_NODES;
 
 #define BIAS_VALUE 1
@@ -51,32 +51,38 @@ double RandomWeight()
 
 double*** InitializeWeights(double ***array)
 {
-    // 0,1,...,L-1
-    int numLayers = NUM_LAYERS;
-    // Initialize L layers
-    array = (double ***) malloc (sizeof(double ***) * numLayers);
+    // Initialize L layers (0,1,...,L-1)
+    array = (double ***) malloc (sizeof(double ***) * NUM_LAYERS);
 
-    // 1,...,L-1
-    for (int l = 1; l < NUM_LAYERS; ++l)
+    // Hidden Layers
+    for (int l = 1; l < NUM_LAYERS - 1; ++l)
     {
         // Initialize nodes
-        array[l] = (double **) malloc(sizeof(double*) * (NUM_NODES[l] + 1)); // +1 for bias
-        for (int j = 0; j < NUM_NODES[l]; ++j)
+        array[l] = (double **) malloc(sizeof(double*) * (NUM_NODES[l] - 1));
+        for (int j = 0; j < NUM_NODES[l] - 1; ++j)
         {
-            array[l][j] = (double *) malloc(sizeof(double) * (NUM_NODES[l - 1] + 1)); // +1 for bias
-            for (int i = 0 ; i < NUM_NODES[l - 1] + 1; ++i)
-                if (l == 0) // Input vectors
-                    array[l][j][i] = 1;
-                else
-                    array[l][j][i] = RandomWeight();
+            array[l][j] = (double *) malloc(sizeof(double) * (NUM_NODES[l - 1])); // +1 for bias
+            // 0,1,...,N-1, N <-- bias
+            for (int i = 0 ; i < NUM_NODES[l - 1]; ++i)
+                array[l][j][i] = RandomWeight();
         }
+    }
+
+    int OUTPUT_LAYER = NUM_LAYERS - 1;
+    array[OUTPUT_LAYER] = (double **) malloc(sizeof(double*) * (NUM_NODES[OUTPUT_LAYER]));
+    for (int j = 0; j < NUM_NODES[OUTPUT_LAYER]; ++j)
+    {
+        array[OUTPUT_LAYER][j] = (double *) malloc(sizeof(double) * (NUM_NODES[OUTPUT_LAYER - 1])); // +1 for bias
+        // 0,1,...,N-1, N <-- bias
+        for (int i = 0 ; i < NUM_NODES[OUTPUT_LAYER - 1]; ++i)
+            array[OUTPUT_LAYER][j][i] = RandomWeight();
     }
 
     for (int l = 1; l < NUM_LAYERS; ++l)
     {
-        for (int j = 0; j < NUM_NODES[l]; ++j)
+        for (int j = 0; j < NUM_NODES[l] - 1; ++j)
         {
-            for (int i = 0; i < NUM_NODES[l - 1] + 1; ++i)
+            for (int i = 0; i < NUM_NODES[l - 1]; ++i) // also bias
             {
                 printf("weights[%d][%d][%d] = %f\n", l, j, i, array[l][j][i]);
             }
@@ -87,32 +93,23 @@ double*** InitializeWeights(double ***array)
 
 double** InitializeOutputsAndBias(double **y, double *inputs, int inputs_size)
 {
-    // Initialize L + 1 layers
+    // Initialize L + 1 layers (0,1,...,L-1)
     y = (double **) malloc (sizeof(double **) * NUM_LAYERS);
 
-    // Input vectors
-    printf("inputs_size = %d\n", inputs_size);
-    y[0] = (double *) malloc(sizeof(double*) * inputs_size);
+    for (int l = 0; l < NUM_LAYERS; ++l)
+    {
+        y[l] = (double *) malloc(sizeof(double *) * NUM_NODES[l]);
+        y[l][NUM_NODES[l] - 1] = BIAS_VALUE;
+    }
+    
     for (int j = 0; j < inputs_size; ++j)
     {
         y[0][j] = inputs[j];
-        printf("y[%d][%d] = %f\n", 0, j, y[0][j]);
-    }
-    y[0][inputs_size] = BIAS_VALUE;
-
-    // Initialize nodes
-    for (int l = 1; l < NUM_LAYERS; ++l)
-    {
-        // [Input & Hidden & Output] nodes
-        y[l] = (double *) malloc(sizeof(double*) * (NUM_NODES[l] + 1));
-        y[l][NUM_NODES[l]] = BIAS_VALUE; // bias
     }
 
-    printf("NUM_LAYERS = %d\n", NUM_LAYERS);
     for (int l = 0; l < NUM_LAYERS; ++l)
     {
-        // printf("NUM_NODES[%d] = %d\n", l, NUM_NODES[l]);
-        for (int j = 0; j < NUM_NODES[l] + 1; ++j)
+        for (int j = 0; j < NUM_NODES[l]; ++j)
         {
             printf("y[%d][%d] = %f\n", l, j, y[l][j]);
         }
@@ -122,13 +119,12 @@ double** InitializeOutputsAndBias(double **y, double *inputs, int inputs_size)
 
 double Perceptron(double *x, double *w, int layer)
 {
-    for (int i = 0; i < 2; ++i)
-    {
-        printf("x[%d] = %f\n", i, x[i]);
-    }
+    // for (int i = 0; i < 2; ++i)
+    // {
+    //     printf("x[%d] = %f\n", i, x[i]);
+    // }
     double net = 0;
-    printf("NUM_NODES[%d] = %d\n", layer, NUM_NODES[layer]);
-    for (int i = 0; i < NUM_NODES[layer] + 1; ++i)
+    for (int i = 0; i < NUM_NODES[layer]; ++i)
     {
         printf("%f x %f = %f\n", x[i], w[i], x[i] * w[i]);
         net += x[i] * w[i];
@@ -147,11 +143,6 @@ double UnitStep(double net)
 
 void FeedForward(double *inputs, int inputs_size)
 {
-    // for (int j = 0; j < inputs_size; ++j)
-    // {
-    //     // outputs[0][j] = 
-    // }
-
     weights[1][0][0] = 1;
     weights[1][0][1] = 1;
     weights[1][0][2] = -1.5;
@@ -162,11 +153,12 @@ void FeedForward(double *inputs, int inputs_size)
     weights[2][0][1] = 1;
     weights[2][0][2] = -0.5;
 
+
     for (int l = 1; l < NUM_LAYERS; ++l)
     {
-        for (int j = 0; j < NUM_NODES[l]; ++j)
+        for (int j = 0; j < NUM_NODES[l] - 1; ++j)
         {
-            for (int i = 0; i < NUM_NODES[l - 1] + 1; ++i)
+            for (int i = 0; i < NUM_NODES[l - 1]; ++i) // also bias
             {
                 printf("weights[%d][%d][%d] = %f\n", l, j, i, weights[l][j][i]);
             }
@@ -174,9 +166,8 @@ void FeedForward(double *inputs, int inputs_size)
     }
     for (int l = 1; l < NUM_LAYERS; ++l)
     {
-        for (int j = 0; j < NUM_NODES[l]; ++j)
+        for (int j = 0; j < NUM_NODES[l] - 1; ++j)
         {
-            printf("l = %d\n", l);
             outputs[l][j] = Perceptron(outputs[l - 1], weights[l][j], l - 1);
             if (l == 2 && j == 0)
             {
@@ -190,6 +181,11 @@ int main()
 {
     srand(time(NULL));
 
+    int inputs_size = 2;
+    double *inputs = (double *) malloc(inputs_size * sizeof(double));
+    inputs[0] = 0;
+    inputs[1] = 0;
+
     for (int a = 0; a < SIZE_OF(NUM_HIDDEN_NODES); ++a)
     {
         if (NUM_HIDDEN_NODES[a] > 0)
@@ -197,52 +193,20 @@ int main()
     }
     NUM_LAYERS += NUM_HIDDEN_LAYERS;
 
-    NUM_NODES = (int *)malloc(sizeof(int)*NUM_LAYERS);
-    NUM_NODES[0] = NUM_NODES[1] = NUM_INPUT_NODES;
+    NUM_NODES = (int *)malloc(sizeof(int)*NUM_LAYERS + 1);
+    NUM_NODES[0] = inputs_size + 1; // +1 for bias
     for (int a = 0; a < NUM_HIDDEN_LAYERS; ++a)
     {
-        NUM_NODES[a + 2] = NUM_HIDDEN_NODES[a];
+        NUM_NODES[a + 1] = NUM_HIDDEN_NODES[a] + 1; // +1 for bias
     }
-    NUM_NODES[NUM_LAYERS - 1] = NUM_OUTPUT_NODES;
+    NUM_NODES[NUM_LAYERS - 1] = NUM_OUTPUT_NODES + 1;
 
     weights = InitializeWeights(weights);
-    int inputs_size = 2;
-    double *inputs = (double *) malloc(inputs_size * sizeof(double));
-    inputs[0] = 1;
-    inputs[1] = 1;
     outputs = InitializeOutputsAndBias(outputs, inputs, inputs_size);
 
     printf("-------------------\n");
-    // for (int l = 0; l < NUM_LAYERS; ++l)
-    // {
-    //     printf("NUM_NODES[%d] = %d\n", l, NUM_NODES[l]);
-    //     for (int j = 0; j < NUM_NODES[l]; ++j)
-    //     {
-    //         printf("outputs[%d][%d] = %f\n", l, j, outputs[l][j]);
-    //     }
-    // }
 
     FeedForward(inputs, inputs_size);
-
-    // for (int l = 1; l < NUM_LAYERS; ++l)
-    // {
-    //     for (int j = 0; j < NUM_NODES[l]; ++j)
-    //     {
-    //         double net = 0;
-    //         for (int i = 0; i != NUM_NODES[l - 1]; ++i)
-    //         {
-    //         printf("in\n");
-    //             net += outputs[l - 1][i] * weights[l][j][i];
-    //         }
-    //         outputs[l][j] = ACTIVATION_FUNCTION(net);
-    //         printf("output[%d][%d] = %f\n", l, j, outputs[l][j]);
-    //     }
-    // }
-
-
-    // double x[3] = {1, 1, 1};
-    // double w[3] = {1, 1, 1};
-    // printf("y = %f", Perceptron(x, w));
 
     return 0;
 }
