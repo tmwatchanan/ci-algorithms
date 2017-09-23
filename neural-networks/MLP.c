@@ -33,6 +33,14 @@ double *errors;
 double AverageError;
 double **local_gradients;
 
+static const char dataFileName[] = "xor.pat";
+#define XOR_FORMAT "%f %f %f", &num1, &num2, &num3
+int NUM_INPUT_SAMPLES = 0;
+int NUM_INPUT_FEATURES = 2;
+int NUM_OUTPUT_CLASSES = 1;
+double **DataInputs;
+double **DataOutputs;
+
 int epoch = 1;
 #define EPSILON_ERROR 1e-4
 #define LEARNING_RATE 0.2
@@ -296,11 +304,69 @@ void BackPropagation()
     }
 }
 
+void ReadDataFromFile()
+{
+    FILE *file = fopen (dataFileName, "r");
+    if (file == NULL)
+    {
+        printf("An error occured reading the file.");
+    }
+    else
+    {
+        char line [1024]; // hopefully each line does not exceed 1024 chars
+        double num1, num2, num3;
+        while (fgets (line, sizeof line, file) != NULL) // reads each line
+        {
+            ++NUM_INPUT_SAMPLES;
+        }
+        rewind(file); // reset the pointer to the start of the file
+
+        DataInputs = (double **) malloc(sizeof(double *) * NUM_INPUT_SAMPLES);
+        DataOutputs = (double **) malloc(sizeof(double *) * NUM_INPUT_SAMPLES);
+        for (int s = 0; s < NUM_INPUT_SAMPLES; ++s)
+        {
+            DataInputs[s] = (double *) malloc(sizeof(double) * NUM_INPUT_FEATURES);
+            DataOutputs[s] = (double *) malloc(sizeof(double) * NUM_OUTPUT_CLASSES);
+        }
+        int sample = 0;
+        while (fgets (line, sizeof line, file) != NULL) // reads each line
+        {
+            // reads each number into an array
+            sscanf(line, "%lf %lf %lf", &num1, &num2, &num3);
+            // sscanf(line, XOR_FORMAT);
+
+            // Pre-process data
+            if (num3 == 0)
+            {
+                num3 = -1 + 0.1;
+            }
+            else if (num3 == 1)
+            {
+                num3 = 1 - 0.1;
+            }
+            DataInputs[sample][0] = num1;
+            printf("DataInputs[%d][0] = %f\n", sample, DataInputs[sample][0]);
+            DataInputs[sample][1] = num2;
+            printf("DataInputs[%d][1] = %f\n", sample, DataInputs[sample][1]);
+            DataOutputs[sample][0] = num3;
+            printf("DataOutputs[%d][0] = %f\n", sample, DataOutputs[sample][0]);
+            ++sample;
+        }
+        printf("NUM_INPUT_SAMPLES = %d\n", NUM_INPUT_SAMPLES);
+        fclose(file);
+    }
+}
+
 int main()
 {
     srand(time(NULL));
 
-    int inputs_size = 2;
+    int inputs_size = 0;
+    ReadDataFromFile();
+
+    // double** inputs = DataInputs;
+    // desired_outputs = DataOutputs;
+
     double *inputs = (double *) malloc(inputs_size * sizeof(double));
     inputs[0] = -1;
     inputs[1] = -1;
