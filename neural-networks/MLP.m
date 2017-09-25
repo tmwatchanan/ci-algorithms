@@ -15,12 +15,12 @@ sd = (sum((features_data - mean) .^ 2) ./ (N - 1)) .^ 0.5
 features_data = (features_data - mean) ./ repmat(sd, size(features_data, 1), 1);
 data(:, 1:NUM_FEATURES) = features_data;
 
-NUM_HIDDEN_NODES_IN_LAYER = [2;3];
+NUM_HIDDEN_NODES_IN_LAYER = [NUM_FEATURES; 6];
 NUM_NODES_IN_LAYER = [NUM_FEATURES + 1; NUM_HIDDEN_NODES_IN_LAYER + 1; NUM_CLASSES + 1]; % add bias nodes for input layer and hidden layers
 NUM_LAYERS = size(NUM_NODES_IN_LAYER, 1);
 OUTPUT_LAYER = NUM_LAYERS;
 
-LEARNING_RATE = 0.5;
+LEARNING_RATE = 0.1;
 MOMENTUM = 0.8;
 K_FOLD = 10;
 BIAS_VALUE = 1;
@@ -80,9 +80,10 @@ while (Eav > EPSILON && Epoch < MAX_EPOCH)
     x = input_data(1, 1:NUM_FEATURES);
     % desired outputs / targets
     d = input_data(1, end-NUM_CLASSES+1:end)';
-    % Scaling targets
-%    d(d == 1) = 1;
-%    d(d == 0) = -1;
+    % Scaling targets for HyperbolicTangent
+%    d(d == 1) = 0.9;
+%    d(d == 0) = -0.9;
+    % Scaling targets for Logistic
     d(d == 1) = 0.9;
     d(d == 0) = 0.1;
     % remove the first used sample
@@ -105,11 +106,11 @@ while (Eav > EPSILON && Epoch < MAX_EPOCH)
     
     % Show outputs
     printf("[EPOCH @ %d] ", Epoch);
-    printf("x = ");
+    printf("x=");
     printf(mat2str(x, 2));
-    printf(" (y = ");
+    printf(" (y=");
     printf(mat2str(y{OUTPUT_LAYER}, 2));
-    printf(", d = ");
+    printf(", d=");
     printf(mat2str(d));
     printf(")\n");
 %    fprintf("] -- w{3} = ");
@@ -144,3 +145,5 @@ while (Eav > EPSILON && Epoch < MAX_EPOCH)
   disp('---');
   fflush(stdout);
 endwhile
+
+printf("[EPOCH @ %d] Average Error = %.3f\n", Epoch, Eav);
