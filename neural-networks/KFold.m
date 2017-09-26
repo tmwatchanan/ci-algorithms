@@ -22,7 +22,7 @@
 ## Author: Watchanan <Watchanan@DELL-INSPIRON-3>
 ## Created: 2017-09-25
 
-function [training_sets, test_sets] = KFold (data, k)
+function [training_sets, test_sets, fold_size] = KFold (data, k)
   % Shuffle the data
   data = data(randperm(size(data,1)), :);
   % #samples of the data
