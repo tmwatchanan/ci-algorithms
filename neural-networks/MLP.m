@@ -8,6 +8,9 @@ N = size(data, 1);
 % constant involved with the data set
 NUM_FEATURES = 4;
 NUM_CLASSES = 3;
+% Saving figures
+OPEN_FIGURES = 1;
+SAVE_FIGURES = 0;
 % Scaling data set
 features_data = data(:, 1:NUM_FEATURES);
 mean = sum(features_data) / size(features_data, 1);
@@ -24,7 +27,7 @@ desired_output_data(desired_output_data == 1) = 0.9;
 desired_output_data(desired_output_data == 0) = 0.1;
 data(:, end-NUM_CLASSES+1:end) = desired_output_data;
 
-NUM_HIDDEN_NODES_IN_LAYER = [NUM_FEATURES; 6];
+NUM_HIDDEN_NODES_IN_LAYER = [4];
 NUM_NODES_IN_LAYER = [NUM_FEATURES + 1; NUM_HIDDEN_NODES_IN_LAYER + 1; NUM_CLASSES + 1]; % add bias nodes for input layer and hidden layers
 NUM_LAYERS = size(NUM_NODES_IN_LAYER, 1);
 OUTPUT_LAYER = NUM_LAYERS;
@@ -79,7 +82,13 @@ original_w = w;
 original_y = y;
 original_data = data;
 [training_sets, test_sets, N_fold] = KFold (data, K_fold);
+% for each fold
 for k = 1:K_fold
+  % Open figure for confusion matrices
+  if OPEN_FIGURES
+  %  figure(k);
+    figure('Position',[0,0,500,300]);
+  endif  
   % Load initial data for every k
   w = original_w;
   y = original_y;
@@ -92,6 +101,9 @@ for k = 1:K_fold
     input_data = data(randperm(size(data,1)), 1:end);
     % set Eav to 0 in each epoch
     Eav = 0;
+    % initialize arrays for confusion matrix
+    y_output = [];
+    d_output = [];
     % for every samples
     for n = 1:N_fold
       % inputs
@@ -155,10 +167,31 @@ for k = 1:K_fold
     endfor
     Eav = Eav / N_fold;
     Epoch = Epoch + 1;
+    
+    y_output = [y_output; y{OUTPUT_LAYER}'];
+    d_output = [d_output; d'];
+    
 %    disp('---');
     fflush(stdout);
   endwhile
   Eav_train(k) = Eav;
+  
+  % Confusion matrix for training set
+  if OPEN_FIGURES
+    desired_outputs = round(d_output);
+    actual_outputs = round(y_output);
+    confusion_matrix = zeros(NUM_CLASSES);
+    for i = 1:size(desired_outputs, 1)
+      [_, d_idx] = max(desired_outputs(i, :));
+      [_, c_idx] = max(actual_outputs(i, :));
+      confusion_matrix(d_idx, c_idx) = confusion_matrix(d_idx, c_idx) + 1;
+    endfor
+    wrong = sum(confusion_matrix(~logical(eye(size(confusion_matrix)))));
+    accuracy = 1 - (wrong / N_fold);
+    CONFUSION_MATRIX_NAME = 'Training Set';
+    CONFUSION_MATRIX_SUBPLOT_POSITION = 1;
+    ConfusionMatrix;
+  endif  
   
   % Test the validation set
   % shuffle samples for pick unique random x
@@ -168,6 +201,7 @@ for k = 1:K_fold
   Eav = 0;
   y_output = [];
   d_output = [];
+  y = original_y;
   for n = 1:N_fold
     % inputs
     x = input_data(1, 1:NUM_FEATURES);
@@ -187,6 +221,29 @@ for k = 1:K_fold
     y_output = [y_output; y{OUTPUT_LAYER}'];
     d_output = [d_output; d'];
   endfor
+  
+  % Confusion matrix for validation set
+  if OPEN_FIGURES
+    desired_outputs = round(d_output);
+    actual_outputs = round(y_output);
+    confusion_matrix = zeros(NUM_CLASSES);
+    for i = 1:size(desired_outputs, 1)
+      [_, d_idx] = max(desired_outputs(i, :));
+      [_, c_idx] = max(actual_outputs(i, :));
+      confusion_matrix(d_idx, c_idx) = confusion_matrix(d_idx, c_idx) + 1;
+    endfor
+    printf("Confusion matrix:\n");
+    %disp(confusion_matrix);
+    wrong = sum(confusion_matrix(~logical(eye(size(confusion_matrix)))));
+    accuracy = 1 - (wrong / N_fold);
+    CONFUSION_MATRIX_NAME = 'Validation Set';
+    CONFUSION_MATRIX_SUBPLOT_POSITION = 2;
+    ConfusionMatrix;
+    if SAVE_FIGURES
+      print(SAVE_FILENAME,'-dpng', '-S500,280');
+    endif  
+  endif  
+    
   Epochs(k) = Epoch;
   Eav_test(k) = Eav;
   weights{k} = w;
@@ -197,35 +254,3 @@ endfor
 
 [_, best_k] = min(Eav_test);
 printf("[Best performance @ k = %d] ------\n(train error\t= %.4f)\n(test error\t= %.3f)\n", best_k, Eav_train(best_k), Eav_test(best_k));
-
-desired_outputs = round(d_outputs{best_k});
-actual_outputs = round(y_outputs{best_k});
-confusion_matrix = zeros(NUM_CLASSES);
-for i = 1:size(desired_outputs, 1)
-  [_, d_idx] = max(desired_outputs(i, :));
-  [_, c_idx] = max(actual_outputs(i, :));
-  confusion_matrix(d_idx, c_idx) = confusion_matrix(d_idx, c_idx) + 1;
-endfor
-printf("Confusion matrix:\n");
-%disp(confusion_matrix);
-wrong = sum(confusion_matrix(~logical(eye(size(confusion_matrix)))));
-accuracy = 1 - (wrong / N_fold);
-
-imagesc(confusion_matrix);            %# Create a colored plot of the matrix values
-%colormap(flipud(gray));  %# Change the colormap to gray (so higher values are black and lower values are white)
-textStrings = num2str(confusion_matrix(:),'%d');  %# Create strings from the matrix values
-textStrings = strtrim(cellstr(textStrings));  %# Remove any space padding
-[x,y] = meshgrid(1:NUM_CLASSES);   %# Create x and y coordinates for the strings
-hStrings = text(x(:),y(:),textStrings(:),'HorizontalAlignment','center', 'fontsize', 28);
-%midValue = mean(get(gca,'CLim'));  %# Get the middle value of the color range
-%textColors = repmat(confusion_matrix(:) > midValue,1,3);  %# Choose white or black for the text color of the strings so they can be easily seen over the background color
-%set(hStrings,{'Color'},num2cell(textColors,2));  %# Change the text colors
-set(gca,'fontsize', 14,...
-        'XTick',1:NUM_CLASSES,...       %# Change the axes tick marks
-        'XTickLabel',1:NUM_CLASSES,...  %#   and tick labels
-        'YTick',1:NUM_CLASSES,...
-        'YTickLabel',1:NUM_CLASSES,...
-        'TickLength',[0 0]);
-xlabel('calculated class', 'fontsize', 14);
-ylabel('desired class', 'fontsize', 14);
-title(['Confusion Matrix of ' FILE_NAME; '\eta=' num2str(LEARNING_RATE) ', \alpha=' num2str(MOMENTUM) ; 'accuracy=' num2str(accuracy)]);
