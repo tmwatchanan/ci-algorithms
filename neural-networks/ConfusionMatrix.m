@@ -1,3 +1,16 @@
+% calculation
+desired_outputs = round(d_output);
+actual_outputs = round(y_output);
+confusion_matrix = zeros(NUM_CLASSES);
+for i = 1:size(desired_outputs, 1)
+  [_, d_idx] = max(desired_outputs(i, :));
+  [_, c_idx] = max(actual_outputs(i, :));
+  confusion_matrix(d_idx, c_idx) = confusion_matrix(d_idx, c_idx) + 1;
+endfor
+wrong = sum(confusion_matrix(~logical(eye(size(confusion_matrix)))));
+accuracy = 1 - (wrong / N_fold);
+
+% plot
 %figure(k);
 %figure('Position',[0,0,500,300]);
 subplot(1,2,CONFUSION_MATRIX_SUBPLOT_POSITION)
@@ -33,7 +46,7 @@ text(x(:),y(:),textStrings(:),'HorizontalAlignment','center', 'fontsize', 28, 'f
 title([FILE_NAME ' ' CONFUSION_MATRIX_NAME ;'\eta=' num2str(LEARNING_RATE) ', \alpha=' num2str(MOMENTUM) ; 'fold=' num2str(k) ' accuracy=' num2str(accuracy)]);
 
 text(x(:),y(:),textStrings(:),'HorizontalAlignment','center', 'fontsize', 28, 'fontweight', 'bold', 'fontname', 'Consolas');
-SAVE_FILENAME = [FILE_NAME "-lr" num2str(LEARNING_RATE) "-mo" num2str(MOMENTUM) "-k" num2str(k) ".jpg"];
+SAVE_FILENAME = [FILE_NAME "-lr" num2str(LEARNING_RATE) "-mo" num2str(MOMENTUM) "-k" num2str(k) ".png"];
 %print(SAVE_FILENAME,'-djpg');
 %print(SAVE_FILENAME,'-djpg', '-S500,350');
 %saveas (h, [FILE_NAME "-figure-new-" num2str(k) ".jpg"]);

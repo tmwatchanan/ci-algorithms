@@ -1,16 +1,28 @@
 clear all;
 more off;
+
 % Read data from file
 FILE_NAME = 'iris.pat';
 data = dlmread(FILE_NAME, ' ');
-% the number of samples
-N = size(data, 1);
 % constant involved with the data set
 NUM_FEATURES = 4;
 NUM_CLASSES = 3;
+% parameters setup
+NUM_HIDDEN_NODES_IN_LAYER = [4];
+LEARNING_RATE = 0.7;
+MOMENTUM = 0.8;
+K_fold = 10; % 0
+BIAS_VALUE = 1;
+% condition-break constants
+EPSILON = 1e-2;
+MAX_EPOCH = 5000;
+
 % Saving figures
 OPEN_FIGURES = 1;
 SAVE_FIGURES = 0;
+
+% the number of samples
+N = size(data, 1);
 % Scaling data set
 features_data = data(:, 1:NUM_FEATURES);
 mean = sum(features_data) / size(features_data, 1);
@@ -20,26 +32,16 @@ data(:, 1:NUM_FEATURES) = features_data;
 % Scaling desired outputs
 desired_output_data = data(:, end-NUM_CLASSES+1:end);
 % Scaling targets for HyperbolicTangent
-%    desired_output_data(desired_output_data == 1) = 0.9;
-%    desired_output_data(desired_output_data == 0) = -0.9;
+%desired_output_data(desired_output_data == 1) = 0.9;
+%desired_output_data(desired_output_data == 0) = -0.9;
 % Scaling targets for Logistic
 desired_output_data(desired_output_data == 1) = 0.9;
 desired_output_data(desired_output_data == 0) = 0.1;
 data(:, end-NUM_CLASSES+1:end) = desired_output_data;
 
-NUM_HIDDEN_NODES_IN_LAYER = [4];
 NUM_NODES_IN_LAYER = [NUM_FEATURES + 1; NUM_HIDDEN_NODES_IN_LAYER + 1; NUM_CLASSES + 1]; % add bias nodes for input layer and hidden layers
 NUM_LAYERS = size(NUM_NODES_IN_LAYER, 1);
 OUTPUT_LAYER = NUM_LAYERS;
-
-LEARNING_RATE = 0.7;
-MOMENTUM = 0.8;
-K_fold = 10; % 0
-BIAS_VALUE = 1;
-
-% condition-break constants
-EPSILON = 1e-2;
-MAX_EPOCH = 5000;
 
 function output = RandomWeight (fanin)
   min = -1 / sqrt(fanin);
@@ -84,11 +86,6 @@ original_data = data;
 [training_sets, test_sets, N_fold] = KFold (data, K_fold);
 % for each fold
 for k = 1:K_fold
-  % Open figure for confusion matrices
-  if OPEN_FIGURES
-  %  figure(k);
-    figure('Position',[0,0,500,300]);
-  endif  
   % Load initial data for every k
   w = original_w;
   y = original_y;
@@ -96,6 +93,7 @@ for k = 1:K_fold
   % Initialize break-loop variables
   Epoch = 1;
   Eav = 100;
+  avError = [];
   while (Eav > EPSILON && Epoch < MAX_EPOCH)
     % shuffle samples for pick unique random x
     input_data = data(randperm(size(data,1)), 1:end);
@@ -166,6 +164,7 @@ for k = 1:K_fold
       endfor
     endfor
     Eav = Eav / N_fold;
+    avError = [avError Eav];
     Epoch = Epoch + 1;
     
     y_output = [y_output; y{OUTPUT_LAYER}'];
@@ -174,20 +173,14 @@ for k = 1:K_fold
 %    disp('---');
     fflush(stdout);
   endwhile
+  avErrors{k} = avError;
   Eav_train(k) = Eav;
   
   % Confusion matrix for training set
   if OPEN_FIGURES
-    desired_outputs = round(d_output);
-    actual_outputs = round(y_output);
-    confusion_matrix = zeros(NUM_CLASSES);
-    for i = 1:size(desired_outputs, 1)
-      [_, d_idx] = max(desired_outputs(i, :));
-      [_, c_idx] = max(actual_outputs(i, :));
-      confusion_matrix(d_idx, c_idx) = confusion_matrix(d_idx, c_idx) + 1;
-    endfor
-    wrong = sum(confusion_matrix(~logical(eye(size(confusion_matrix)))));
-    accuracy = 1 - (wrong / N_fold);
+    % Open figure for confusion matrices
+%    figure(k);
+    figure('Position',[0,0,500,300]);
     CONFUSION_MATRIX_NAME = 'Training Set';
     CONFUSION_MATRIX_SUBPLOT_POSITION = 1;
     ConfusionMatrix;
@@ -199,8 +192,7 @@ for k = 1:K_fold
   input_data = data(randperm(size(data,1)), 1:end);
   % set Eav to 0 in each epoch
   Eav = 0;
-  y_output = [];
-  d_output = [];
+  y_output = d_output = [];
   y = original_y;
   for n = 1:N_fold
     % inputs
@@ -224,24 +216,12 @@ for k = 1:K_fold
   
   % Confusion matrix for validation set
   if OPEN_FIGURES
-    desired_outputs = round(d_output);
-    actual_outputs = round(y_output);
-    confusion_matrix = zeros(NUM_CLASSES);
-    for i = 1:size(desired_outputs, 1)
-      [_, d_idx] = max(desired_outputs(i, :));
-      [_, c_idx] = max(actual_outputs(i, :));
-      confusion_matrix(d_idx, c_idx) = confusion_matrix(d_idx, c_idx) + 1;
-    endfor
-    printf("Confusion matrix:\n");
-    %disp(confusion_matrix);
-    wrong = sum(confusion_matrix(~logical(eye(size(confusion_matrix)))));
-    accuracy = 1 - (wrong / N_fold);
     CONFUSION_MATRIX_NAME = 'Validation Set';
     CONFUSION_MATRIX_SUBPLOT_POSITION = 2;
     ConfusionMatrix;
     if SAVE_FIGURES
       print(SAVE_FILENAME,'-dpng', '-S500,280');
-    endif  
+    endif
   endif  
     
   Epochs(k) = Epoch;
@@ -251,6 +231,8 @@ for k = 1:K_fold
   d_outputs{k} = d_output;
   printf("{K = %d} #epoch=%d\tAverage Error (Train = %.4f) (Test = %.3f)\n", k, Epochs(k), Eav_train(k), Eav_test(k));
 endfor
+
+PlotErrorGraph;
 
 [_, best_k] = min(Eav_test);
 printf("[Best performance @ k = %d] ------\n(train error\t= %.4f)\n(test error\t= %.3f)\n", best_k, Eav_train(best_k), Eav_test(best_k));
