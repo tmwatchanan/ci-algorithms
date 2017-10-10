@@ -37,12 +37,11 @@ xlabel('calculated class', 'fontsize', 14);
 text(x(:),y(:),textStrings(:),'HorizontalAlignment','center', 'fontsize', 28, 'fontweight', 'bold', 'fontname', 'Consolas');
 ylabel('desired class', 'fontsize', 14);
 text(x(:),y(:),textStrings(:),'HorizontalAlignment','center', 'fontsize', 28, 'fontweight', 'bold', 'fontname', 'Consolas');
-title([FILE_NAME ' ' CONFUSION_MATRIX_NAME ;'\eta=' num2str(LEARNING_RATE) ', \alpha=' num2str(MOMENTUM) ', #hidden nodes=' num2str(NUM_HIDDEN_NODES_IN_LAYER); 'fold=' num2str(k) ' accuracy=' num2str(accuracy)]);
+title([FILE_NAME ' ' CONFUSION_MATRIX_NAME ;'\eta=' num2str(LEARNING_RATE) ', \alpha=' num2str(MOMENTUM) ', #h_nodes=' num2str(NUM_HIDDEN_NODES_IN_LAYER); 'fold=' num2str(k) ' accuracy=' num2str(accuracy)]);
 text(x(:),y(:),textStrings(:),'HorizontalAlignment','center', 'fontsize', 28, 'fontweight', 'bold', 'fontname', 'Consolas');
 hold off;
 
 if SAVE_FIGURES & strcmp(CONFUSION_MATRIX_NAME, 'Validation Set')
-  SAVE_DIRNAME = [FILE_NAME "-lr" num2str(LEARNING_RATE) "-mo" num2str(MOMENTUM) "-node" num2str(NUM_HIDDEN_NODES_IN_LAYER)];
   SAVE_FILENAME = ["k" num2str(k) ".png"];
   if !exist(SAVE_DIRNAME, 'dir')
     mkdir(SAVE_DIRNAME);

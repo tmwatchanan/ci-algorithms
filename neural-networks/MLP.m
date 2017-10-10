@@ -6,7 +6,7 @@ more off;
 FILE_NAME = 'iris.pat';
 data = dlmread(FILE_NAME, ' ');
 % parameters setup
-NUM_HIDDEN_NODES_IN_LAYER = [4];
+NUM_HIDDEN_NODES_IN_LAYER = [0];
 LEARNING_RATE = 0.6;
 MOMENTUM = 0.8;
 K_fold = 10; % 0
@@ -26,6 +26,8 @@ endif
 % Saving figures
 OPEN_FIGURES = 1;
 SAVE_FIGURES = 1;
+
+SAVE_DIRNAME = [FILE_NAME "-lr" num2str(LEARNING_RATE) "-mo" num2str(MOMENTUM) "-node" num2str(NUM_HIDDEN_NODES_IN_LAYER)];
 
 % the number of samples
 N = size(data, 1);
