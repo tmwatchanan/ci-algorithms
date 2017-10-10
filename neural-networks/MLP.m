@@ -1,25 +1,31 @@
+close all;
 clear all;
 more off;
 
 % Read data from file
 FILE_NAME = 'iris.pat';
 data = dlmread(FILE_NAME, ' ');
-% constant involved with the data set
-NUM_FEATURES = 4;
-NUM_CLASSES = 3;
 % parameters setup
 NUM_HIDDEN_NODES_IN_LAYER = [4];
-LEARNING_RATE = 0.7;
+LEARNING_RATE = 0.6;
 MOMENTUM = 0.8;
 K_fold = 10; % 0
 BIAS_VALUE = 1;
 % condition-break constants
 EPSILON = 1e-2;
 MAX_EPOCH = 5000;
+% constant involved with the data set
+if strcmp(FILE_NAME, 'iris.pat')
+  NUM_FEATURES = 4;
+  NUM_CLASSES = 3;
+elseif strcmp(FILE_NAME, 'cross.pat')
+  NUM_FEATURES = 2;
+  NUM_CLASSES = 2;
+endif
 
 % Saving figures
 OPEN_FIGURES = 1;
-SAVE_FIGURES = 0;
+SAVE_FIGURES = 1;
 
 % the number of samples
 N = size(data, 1);
@@ -180,9 +186,10 @@ for k = 1:K_fold
   if OPEN_FIGURES
     % Open figure for confusion matrices
 %    figure(k);
-    figure('Position',[0,0,500,300]);
+    figure(k, 'Position', [0,0,500,300]);
     CONFUSION_MATRIX_NAME = 'Training Set';
     CONFUSION_MATRIX_SUBPLOT_POSITION = 1;
+
     ConfusionMatrix;
   endif  
   
@@ -218,10 +225,8 @@ for k = 1:K_fold
   if OPEN_FIGURES
     CONFUSION_MATRIX_NAME = 'Validation Set';
     CONFUSION_MATRIX_SUBPLOT_POSITION = 2;
+   
     ConfusionMatrix;
-    if SAVE_FIGURES
-      print(SAVE_FILENAME,'-dpng', '-S500,280');
-    endif
   endif  
     
   Epochs(k) = Epoch;
