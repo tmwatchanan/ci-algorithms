@@ -1,14 +1,17 @@
 close all;
 clear all;
 more off;
-
+% Saving figures
+OPEN_FIGURES = 0;
+SAVE_FIGURES = 1;
 % Read data from file
-FILE_NAME = 'iris.pat';
-data = dlmread(FILE_NAME, ' ');
+%FILE_NAME = 'iris.pat';
+FILE_NAME = 'cross.pat';
+data = dlmread(FILE_NAME, 'c ');
 % parameters setup
-NUM_HIDDEN_NODES_IN_LAYER = [0];
-LEARNING_RATE = 0.6;
-MOMENTUM = 0.8;
+NUM_HIDDEN_NODES_IN_LAYER = [2];
+LEARNING_RATE = 1;
+MOMENTUM = 1;
 K_fold = 10; % 0
 BIAS_VALUE = 1;
 % condition-break constants
@@ -23,11 +26,9 @@ elseif strcmp(FILE_NAME, 'cross.pat')
   NUM_CLASSES = 2;
 endif
 
-% Saving figures
-OPEN_FIGURES = 1;
-SAVE_FIGURES = 1;
-
-SAVE_DIRNAME = [FILE_NAME "-lr" num2str(LEARNING_RATE) "-mo" num2str(MOMENTUM) "-node" num2str(NUM_HIDDEN_NODES_IN_LAYER)];
+numHiddenNodesForString = sprintf('%g-' , NUM_HIDDEN_NODES_IN_LAYER);
+numHiddenNodesForString = numHiddenNodesForString(1:end-1);% strip final comma
+SAVE_DIRNAME = [FILE_NAME "-lr" num2str(LEARNING_RATE) "-mo" num2str(MOMENTUM) "-node" num2str(numHiddenNodesForString)];
 
 % the number of samples
 N = size(data, 1);
@@ -68,7 +69,7 @@ endfor
 y = cell(NUM_LAYERS, 1);
 for l = 1:NUM_LAYERS-1
   y{l} = zeros(NUM_NODES_IN_LAYER(l) - 1, 1);
-  y{l}(NUM_NODES_IN_LAYER(l)) = BIAS_VALUE;
+  y{l}(NUM_NODES_IN_LAYER(l), 1) = BIAS_VALUE;
 end
 
 function output = HyperbolicTangent (v)
@@ -130,6 +131,9 @@ for k = 1:K_fold
         net{l} = w{l} * y{l-1};
         y{l}(1:NUM_NODES_IN_LAYER(l)-1, 1) = arrayfun(@Logistic, net{l}); % only actual nodes, except bias nodes
       endfor
+      % correct outputs for confusion matrix
+      y_output = [y_output; y{OUTPUT_LAYER}'];
+      d_output = [d_output; d'];
       % error
       e = d - y{OUTPUT_LAYER};
       Eav = Eav + (0.5 * sum(e.^2));
@@ -175,20 +179,18 @@ for k = 1:K_fold
     avError = [avError Eav];
     Epoch = Epoch + 1;
     
-    y_output = [y_output; y{OUTPUT_LAYER}'];
-    d_output = [d_output; d'];
-    
 %    disp('---');
     fflush(stdout);
   endwhile
+  
   avErrors{k} = avError;
   Eav_train(k) = Eav;
   
   % Confusion matrix for training set
-  if OPEN_FIGURES
+  if OPEN_FIGURES || SAVE_FIGURES
     % Open figure for confusion matrices
 %    figure(k);
-    figure(k, 'Position', [0,0,500,300]);
+    figure(k, 'Position', [0,0,500,180]);
     CONFUSION_MATRIX_NAME = 'Training Set';
     CONFUSION_MATRIX_SUBPLOT_POSITION = 1;
 
@@ -224,7 +226,7 @@ for k = 1:K_fold
   endfor
   
   % Confusion matrix for validation set
-  if OPEN_FIGURES
+  if OPEN_FIGURES || SAVE_FIGURES
     CONFUSION_MATRIX_NAME = 'Validation Set';
     CONFUSION_MATRIX_SUBPLOT_POSITION = 2;
    
