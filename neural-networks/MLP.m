@@ -9,9 +9,9 @@ SAVE_FIGURES = 1;
 FILE_NAME = 'cross.pat';
 data = dlmread(FILE_NAME, 'c ');
 % parameters setup
-NUM_HIDDEN_NODES_IN_LAYER = [2];
-LEARNING_RATE = 1;
-MOMENTUM = 1;
+NUM_HIDDEN_NODES_IN_LAYER = [18];
+LEARNING_RATE = 0.1;
+MOMENTUM = 0.1;
 K_fold = 10; % 0
 BIAS_VALUE = 1;
 % condition-break constants
