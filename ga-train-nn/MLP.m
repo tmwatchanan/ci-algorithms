@@ -18,24 +18,24 @@ FILE_NAME = 'wdbc_numeric.data';
 wdbc = dlmread(FILE_NAME, ',');
 NUM_FEATURES = 30;
 NUM_CLASSES = 2;
-FEATURES_INDEX = 3:end;
+CLASSES_INDEX = 2;
+FEATURES_INDEX = 3:size(wdbc, 2);
 
 numHiddenNodesForString = sprintf('%g-' , NUM_HIDDEN_NODES_IN_LAYER);
 numHiddenNodesForString = numHiddenNodesForString(1:end-1);% strip final comma
 SAVE_DIRNAME = [FILE_NAME "-lr" num2str(LEARNING_RATE) "-mo" num2str(MOMENTUM) "-node" num2str(numHiddenNodesForString)];
 
-N = size(wdbc, 1); % the number of samples
+% the number of samples
+N = size(wdbc, 1);
 % scaling data set
-wdbc(:, FEATURES_INDEX) = normalize_features(wdbc(:, FEATURES_INDEX));
-% Scaling desired outputs
-desired_output_data = data(:, end-NUM_CLASSES+1:end);
-% Scaling targets for HyperbolicTangent
-%desired_output_data(desired_output_data == 1) = 0.9;
-%desired_output_data(desired_output_data == 0) = -0.9;
+features_data = wdbc(:, FEATURES_INDEX);
+wdbc(:, FEATURES_INDEX) = normalize_features(features_data);
+% desired outputs
+desired_output_data = wdbc(:, CLASSES_INDEX);
 % Scaling targets for Logistic
 desired_output_data(desired_output_data == 1) = 0.9;
 desired_output_data(desired_output_data == 0) = 0.1;
-data(:, end-NUM_CLASSES+1:end) = desired_output_data;
+wdbc(:, CLASSES_INDEX) = desired_output_data;
 
 NUM_NODES_IN_LAYER = [NUM_FEATURES + 1; NUM_HIDDEN_NODES_IN_LAYER + 1; NUM_CLASSES + 1]; % add bias nodes for input layer and hidden layers
 NUM_LAYERS = size(NUM_NODES_IN_LAYER, 1);
