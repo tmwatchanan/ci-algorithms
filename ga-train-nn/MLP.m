@@ -27,12 +27,11 @@ SAVE_DIRNAME = [FILE_NAME "-lr" num2str(LEARNING_RATE) "-mo" num2str(MOMENTUM) "
 
 % the number of samples
 N = size(wdbc, 1);
-% scaling data set
+% scaling features
 features_data = wdbc(:, FEATURES_INDEX);
 wdbc(:, FEATURES_INDEX) = normalize_features(features_data);
-% desired outputs
+% desired outputs and scaling using Logistic function
 desired_output_data = wdbc(:, CLASSES_INDEX);
-% Scaling targets for Logistic
 desired_output_data(desired_output_data == 1) = 0.9;
 desired_output_data(desired_output_data == 0) = 0.1;
 wdbc(:, CLASSES_INDEX) = desired_output_data;
@@ -41,38 +40,38 @@ NUM_NODES_IN_LAYER = [NUM_FEATURES + 1; NUM_HIDDEN_NODES_IN_LAYER + 1; NUM_CLASS
 NUM_LAYERS = size(NUM_NODES_IN_LAYER, 1);
 OUTPUT_LAYER = NUM_LAYERS;
 
-% Initialize weights
+% initialize weights
 w = cell(NUM_LAYERS, 1);
 for l = 2:NUM_LAYERS
   w{l} = arrayfun(@random_weight, ones(NUM_NODES_IN_LAYER(l) - 1, NUM_NODES_IN_LAYER(l - 1)));
   delta_w{l} = ones(NUM_NODES_IN_LAYER(l) - 1, NUM_NODES_IN_LAYER(l - 1));
 endfor
 
-% Initialize outputs and biases
+% initialize outputs and biases
 y = cell(NUM_LAYERS, 1);
 for l = 1:NUM_LAYERS-1
-  y{l} = zeros(NUM_NODES_IN_LAYER(l) - 1, 1);
-  y{l}(NUM_NODES_IN_LAYER(l), 1) = BIAS_VALUE;
+  y{l} = zeros(NUM_NODES_IN_LAYER(l) - 1, 1); % nodes
+  y{l}(NUM_NODES_IN_LAYER(l), 1) = BIAS_VALUE; % bias
 end
 
-% Fixed data for every k
+% fixed data for every k
 original_w = w;
 original_y = y;
-original_data = data;
-[training_sets, test_sets, N_fold] = KFold (data, K_fold);
+original_data = wdbc;
+[training_sets, test_sets, N_fold] = split_k_fold (wdbc, K_fold);
 % for each fold
 for k = 1:K_fold
-  % Load initial data for every k
+  % load initial data for every k
   w = original_w;
   y = original_y;
-  data = training_sets{k};
-  % Initialize break-loop variables
+  % initialize break-loop variables
+  wdbc = training_sets{k};
   Epoch = 1;
   Eav = 100;
   avError = [];
   while (Eav > EPSILON && Epoch < MAX_EPOCH)
     % shuffle samples for pick unique random x
-    input_data = data(randperm(size(data,1)), 1:end);
+    input_data = wdbc(randperm(size(wdbc,1)), 1:end);
     % set Eav to 0 in each epoch
     Eav = 0;
     % initialize arrays for confusion matrix
@@ -81,14 +80,14 @@ for k = 1:K_fold
     % for every samples
     for n = 1:N_fold
       % inputs
-      x = input_data(1, 1:NUM_FEATURES);
+      x = input_data(1, FEATURES_INDEX);
       % desired outputs / targets
-      d = input_data(1, end-NUM_CLASSES+1:end)';
+      d = input_data(1, CLASSES_INDEX)';
       % remove the first used sample
       input_data = input_data(2:end, :);
       
       % input-layer outputs are input vector
-      y{1}(1:NUM_FEATURES, 1) = x(1, 1:NUM_FEATURES)';
+      y{1}(:, 1) = x(1, :)';
       
       % copy old weights
       w_old = w;
@@ -105,7 +104,7 @@ for k = 1:K_fold
       e = d - y{OUTPUT_LAYER};
       Eav = Eav + (0.5 * sum(e.^2));
       
-      % Show outputs
+      % show outputs
 %      printf("[EPOCH @ %d] ", Epoch);
 %      printf("x=");
 %      printf(mat2str(x, 2));
@@ -128,15 +127,7 @@ for k = 1:K_fold
         sum_gradients = w{l + 1}(:, 1:NUM_NODES_IN_LAYER(l)-1)' * local_gradients{l + 1};
         local_gradients{l} = arrayfun(@derivative_logistic, y{l}(1:NUM_NODES_IN_LAYER(l)-1, :)) .*  sum_gradients;
       endfor
-      % adjust weights
-  %    for l = 2:NUM_LAYERS
-  %      for j = 1:NUM_NODES_IN_LAYER(l) - 1
-  %        for i = 1:NUM_NODES_IN_LAYER(l - 1)
-  %          delta_w{l}(j, i) = MOMENTUM * (w{l}(j, i) - w_old{l}(j, i)) + LEARNING_RATE * local_gradients{l}(j) * y{l-1}(i);
-  %          w{l}(j, i) = w{l}(j, i) + delta_w{l}(j, i);
-  %        endfor  
-  %      endfor
-  %    endfor
+      
       for l = 2:NUM_LAYERS
         delta_w{l} = MOMENTUM .* (w{l} - w_old{l}) .+ LEARNING_RATE .* (local_gradients{l} * y{l-1}(1:NUM_NODES_IN_LAYER(l-1), 1)');
         w{l} = w{l} + delta_w{l};
@@ -153,7 +144,7 @@ for k = 1:K_fold
   avErrors{k} = avError;
   Eav_train(k) = Eav;
   
-  % Confusion matrix for training set
+  % confusion matrix for training set
   if OPEN_FIGURES || SAVE_FIGURES
     % Open figure for confusion matrices
 %    figure(k);
@@ -166,21 +157,21 @@ for k = 1:K_fold
   
   % Test the validation set
   % shuffle samples for pick unique random x
-  data = test_sets{k};
-  input_data = data(randperm(size(data,1)), 1:end);
+  wdbc = test_sets{k};
+  input_data = wdbc(randperm(size(wdbc,1)), 1:end);
   % set Eav to 0 in each epoch
   Eav = 0;
   y_output = d_output = [];
   y = original_y;
   for n = 1:N_fold
     % inputs
-    x = input_data(1, 1:NUM_FEATURES);
+    x = input_data(1, FEATURES_INDEX);
     % desired outputs / targets
-    d = input_data(1, end-NUM_CLASSES+1:end)';
+    d = input_data(1, CLASSES_INDEX)';
     % remove the first used sample
     input_data = input_data(2:end, :);
     % input-layer outputs are input vector
-    y{1}(1:NUM_FEATURES, 1) = x(1, 1:NUM_FEATURES)';
+    y{1}(FEATURES_INDEX, 1) = x(1, FEATURES_INDEX)';
     for l = 2:NUM_LAYERS
       net{l} = w{l} * y{l-1};
       y{l}(1:NUM_NODES_IN_LAYER(l)-1, 1) = arrayfun(@logistic, net{l}); % only actual nodes, except bias nodes
