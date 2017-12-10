@@ -23,6 +23,7 @@
 ## Created: 2017-12-09
 
 function normalized_data = normalize_features (data)
+  N = size(data, 1);
   mean = sum(data) / size(data, 1);
   sd = (sum((data - mean) .^ 2) ./ (N - 1)) .^ 0.5;
   normalized_data = (data - mean) ./ repmat(sd, size(data, 1), 1);
