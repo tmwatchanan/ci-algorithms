@@ -22,6 +22,6 @@
 ## Author: "Watchanan Chantapakul" <watchananc@Watchanan-Dell>
 ## Created: 2017-12-10
 
-function y = DerivativeLogistic (v)
+function y = derivative_logistic (v)
   f = v * (1 - v);
 endfunction
