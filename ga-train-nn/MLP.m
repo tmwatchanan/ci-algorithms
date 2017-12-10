@@ -6,8 +6,8 @@ OPEN_FIGURES = 0;
 SAVE_FIGURES = 1;
 % parameters setup
 NUM_HIDDEN_NODES_IN_LAYER = [18];
-LEARNING_RATE = 0.1;
-MOMENTUM = 0.1;
+LEARNING_RATE = 0.5;
+MOMENTUM = 0.5;
 K_fold = 10; % 0
 BIAS_VALUE = 1;
 % condition-break constants
@@ -60,22 +60,6 @@ for l = 1:NUM_LAYERS-1
   y{l} = zeros(NUM_NODES_IN_LAYER(l) - 1, 1);
   y{l}(NUM_NODES_IN_LAYER(l), 1) = BIAS_VALUE;
 end
-
-function output = HyperbolicTangent (v)
-  output = (2 / (1 + exp(-v))) - 1;
-endfunction
-
-function output = DerivativeHyperbolicTangent (y)
-  output = 2 * y * (1 - y);
-endfunction
-
-function output = Logistic (v)
-  output = 1 / (1 + exp(-v));
-endfunction
-
-function output = DerivativeLogistic (y)
-  output = y * (1 - y);
-endfunction
 
 % Fixed data for every k
 original_w = w;
@@ -144,11 +128,11 @@ for k = 1:K_fold
       
       % backward pass
       % local gradients at output layer
-      local_gradients{OUTPUT_LAYER} = e .* arrayfun(@DerivativeLogistic, y{OUTPUT_LAYER});
+      local_gradients{OUTPUT_LAYER} = e .* arrayfun(@derivative_logistic, y{OUTPUT_LAYER});
       % local gradients at hidden layers
       for l = NUM_LAYERS-1:-1:2
         sum_gradients = w{l + 1}(:, 1:NUM_NODES_IN_LAYER(l)-1)' * local_gradients{l + 1};
-        local_gradients{l} = arrayfun(@DerivativeLogistic, y{l}(1:NUM_NODES_IN_LAYER(l)-1, :)) .*  sum_gradients;
+        local_gradients{l} = arrayfun(@derivative_logistic, y{l}(1:NUM_NODES_IN_LAYER(l)-1, :)) .*  sum_gradients;
       endfor
       % adjust weights
   %    for l = 2:NUM_LAYERS
@@ -205,7 +189,7 @@ for k = 1:K_fold
     y{1}(1:NUM_FEATURES, 1) = x(1, 1:NUM_FEATURES)';
     for l = 2:NUM_LAYERS
       net{l} = w{l} * y{l-1};
-      y{l}(1:NUM_NODES_IN_LAYER(l)-1, 1) = arrayfun(@Logistic, net{l}); % only actual nodes, except bias nodes
+      y{l}(1:NUM_NODES_IN_LAYER(l)-1, 1) = arrayfun(@logistic, net{l}); % only actual nodes, except bias nodes
     endfor
     % error
     e = d - y{OUTPUT_LAYER};
