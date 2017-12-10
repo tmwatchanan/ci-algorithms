@@ -67,9 +67,7 @@ for k = 1:K_fold
   w = original_w;
   y = original_y;
   % chromosome
-  chromosome_prototype = create_chromosome_vector (w, NUM_LAYERS)
-  % evaluate fitness
-  
+  chromosome_prototype = create_chromosome_vector (w, NUM_LAYERS);
   % initialize break-loop variables
   wdbc = training_sets{k};
   generation = 1;
@@ -81,8 +79,8 @@ for k = 1:K_fold
       chromosome{c} = chromosome_prototype;
       % shuffle samples for pick unique random x
       input_data = wdbc(randperm(size(wdbc,1)), 1:end);
-      % set Eav to 0 in each generation
-      Eav = 0;
+      % set the sum of squared errors to 0 in each 
+      E = 0;
       % initialize arrays for confusion matrix
       y_output = [];
       d_output = [];
@@ -112,13 +110,15 @@ for k = 1:K_fold
         d_output = [d_output; d'];
         % error
         e = d - y{OUTPUT_LAYER};
-        Eav = Eav + (0.5 * sum(e.^2));
+        E = E + (0.5 * sum(e.^2)); % sum of squared errors
       endfor
-      fitness( = Eav / fold_size;
+      Eav = E / fold_size; % mean squared error (MSE)
       avError = [avError Eav];
       generation = generation + 1;
       fflush(stdout);
     endfor
+    % evaluate fitness of all chromosomes in a generation
+    fitness = evalaute_fitness (avError);
   endwhile
   
   avErrors{k} = avError;
@@ -165,7 +165,6 @@ for k = 1:K_fold
   if OPEN_FIGURES || SAVE_FIGURES
     CONFUSION_MATRIX_NAME = 'Validation Set';
     CONFUSION_MATRIX_SUBPLOT_POSITION = 2;
-   
     ConfusionMatrix;
   endif  
     
