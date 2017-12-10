@@ -26,10 +26,7 @@ SAVE_DIRNAME = [FILE_NAME "-lr" num2str(LEARNING_RATE) "-mo" num2str(MOMENTUM) "
 N = size(wdbc, 1); % the number of samples
 % scaling data set
 features_data = wdbc(:, 3:end);
-mean = sum(features_data) / size(features_data, 1);
-sd = (sum((features_data - mean) .^ 2) ./ (N - 1)) .^ 0.5;
-features_data = (features_data - mean) ./ repmat(sd, size(features_data, 1), 1);
-wdbc(:, 1:NUM_FEATURES) = features_data;
+wdbc(:, 1:NUM_FEATURES) = normalize_features(features_data);
 % Scaling desired outputs
 desired_output_data = data(:, end-NUM_CLASSES+1:end);
 % Scaling targets for HyperbolicTangent
