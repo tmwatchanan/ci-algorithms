@@ -22,6 +22,6 @@
 ## Author: "Watchanan Chantapakul" <watchananc@Watchanan-Dell>
 ## Created: 2017-12-10
 
-function y = logistic (v)
-  y = 1 / (1 + exp(-v));
+function f = logistic (v)
+  f = 1 / (1 + exp(-v));
 endfunction
