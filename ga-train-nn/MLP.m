@@ -18,6 +18,7 @@ FILE_NAME = 'wdbc_numeric.data';
 wdbc = dlmread(FILE_NAME, ',');
 NUM_FEATURES = 30;
 NUM_CLASSES = 2;
+FEATURES_INDEX = 3:end;
 
 numHiddenNodesForString = sprintf('%g-' , NUM_HIDDEN_NODES_IN_LAYER);
 numHiddenNodesForString = numHiddenNodesForString(1:end-1);% strip final comma
@@ -25,8 +26,7 @@ SAVE_DIRNAME = [FILE_NAME "-lr" num2str(LEARNING_RATE) "-mo" num2str(MOMENTUM) "
 
 N = size(wdbc, 1); % the number of samples
 % scaling data set
-features_data = wdbc(:, 3:end);
-wdbc(:, 1:NUM_FEATURES) = normalize_features(features_data);
+wdbc(:, FEATURES_INDEX) = normalize_features(wdbc(:, FEATURES_INDEX));
 % Scaling desired outputs
 desired_output_data = data(:, end-NUM_CLASSES+1:end);
 % Scaling targets for HyperbolicTangent
