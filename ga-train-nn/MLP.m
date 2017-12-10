@@ -14,14 +14,14 @@ BIAS_VALUE = 1;
 EPSILON = 1e-2;
 MAX_EPOCH = 5000;
 % Read data from file wdbc.data = Wisconsin Diagnostic Breast Cancer (WDBC)
-FILE_NAME = 'wdbc_numeric.data';
-wdbc = dlmread(FILE_NAME, ',');
+FILE_NAME = "wdbc_numeric.data";
+wdbc = dlmread(FILE_NAME, ",");
 NUM_FEATURES = 30;
 NUM_CLASSES = 2;
 CLASSES_INDEX = 2;
 FEATURES_INDEX = 3:size(wdbc, 2);
 
-numHiddenNodesForString = sprintf('%g-' , NUM_HIDDEN_NODES_IN_LAYER);
+numHiddenNodesForString = sprintf("%g-" , NUM_HIDDEN_NODES_IN_LAYER);
 numHiddenNodesForString = numHiddenNodesForString(1:end-1);% strip final comma
 SAVE_DIRNAME = [FILE_NAME "-lr" num2str(LEARNING_RATE) "-mo" num2str(MOMENTUM) "-node" num2str(numHiddenNodesForString)];
 
@@ -139,8 +139,8 @@ for k = 1:K_fold
 
   %    fprintf("] -- w{3} = ");
   %    disp(mat2str(w{3}, 2));
-  %    disp(['w{2}=' mat2str(w{2})]);
-  %    disp(['w{3}=' mat2str(w{3})]);
+  %    disp(["w{2}=" mat2str(w{2})]);
+  %    disp(["w{3}=" mat2str(w{3})]);
       
       % backward pass
       % local gradients at output layer
@@ -168,7 +168,7 @@ for k = 1:K_fold
     avError = [avError Eav];
     Epoch = Epoch + 1;
     
-%    disp('---');
+%    disp("---");
     fflush(stdout);
   endwhile
   
@@ -179,8 +179,8 @@ for k = 1:K_fold
   if OPEN_FIGURES || SAVE_FIGURES
     % Open figure for confusion matrices
 %    figure(k);
-    figure(k, 'Position', [0,0,500,180]);
-    CONFUSION_MATRIX_NAME = 'Training Set';
+    figure(k, "Position", [0,0,500,180]);
+    CONFUSION_MATRIX_NAME = "Training Set";
     CONFUSION_MATRIX_SUBPLOT_POSITION = 1;
 
     ConfusionMatrix;
