@@ -5,14 +5,14 @@ more off;
 OPEN_FIGURES = 0;
 SAVE_FIGURES = 1;
 % parameters setup
-NUM_HIDDEN_NODES_IN_LAYER = [18];
+NUM_HIDDEN_NODES_IN_LAYER = [8];
 LEARNING_RATE = 0.5;
 MOMENTUM = 0.5;
 K_fold = 10; % 0
 BIAS_VALUE = 1;
 % condition-break constants
 EPSILON = 1e-2;
-MAX_EPOCH = 5000;
+MAX_GENERATION = 500;
 % Read data from file wdbc.data = Wisconsin Diagnostic Breast Cancer (WDBC)
 FILE_NAME = "wdbc_numeric.data";
 wdbc = dlmread(FILE_NAME, ",");
@@ -20,6 +20,8 @@ NUM_FEATURES = 30;
 NUM_CLASSES = 2;
 CLASSES_INDEX = 2;
 FEATURES_INDEX = 3:size(wdbc, 2);
+% genetic algorithm (GA)
+NUM_CHROMOSOMES = 50;
 
 numHiddenNodesForString = sprintf("%g-" , NUM_HIDDEN_NODES_IN_LAYER);
 numHiddenNodesForString = numHiddenNodesForString(1:end-1);% strip final comma
@@ -64,82 +66,59 @@ for k = 1:K_fold
   % load initial data for every k
   w = original_w;
   y = original_y;
+  % chromosome
+  chromosome_prototype = create_chromosome_vector (w, NUM_LAYERS)
+  % evaluate fitness
+  
   % initialize break-loop variables
   wdbc = training_sets{k};
-  Epoch = 1;
+  generation = 1;
   Eav = 100;
   avError = [];
-  while (Eav > EPSILON && Epoch < MAX_EPOCH)
-    % shuffle samples for pick unique random x
-    input_data = wdbc(randperm(size(wdbc,1)), 1:end);
-    % set Eav to 0 in each epoch
-    Eav = 0;
-    % initialize arrays for confusion matrix
-    y_output = [];
-    d_output = [];
-    fold_size = size(input_data, 1);
-    % for every samples
-    for n = 1:fold_size
-      % inputs
-      x = input_data(1, FEATURES_INDEX);
-      % desired outputs / targets
-      d = input_data(1, CLASSES_INDEX)';
-      % remove the first used sample
-      input_data = input_data(2:end, :);
-      
-      % input-layer outputs are input vector
-      y{1}(1:NUM_FEATURES, 1) = x(1, 1:NUM_FEATURES)';
-      
-      % copy old weights
-      w_old = w;
-      
-      % forward pass
-      for l = 2:NUM_LAYERS
-        net{l} = w{l} * y{l-1};
-        y{l}(1:NUM_NODES_IN_LAYER(l)-1, 1) = arrayfun(@logistic, net{l}); % only actual nodes, except bias nodes
+  while (Eav > EPSILON && generation < MAX_GENERATION)
+    % for every chromosome (network weights)
+    for c = 1:NUM_CHROMOSOMES
+      chromosome{c} = chromosome_prototype;
+      % shuffle samples for pick unique random x
+      input_data = wdbc(randperm(size(wdbc,1)), 1:end);
+      % set Eav to 0 in each generation
+      Eav = 0;
+      % initialize arrays for confusion matrix
+      y_output = [];
+      d_output = [];
+      fold_size = size(input_data, 1);
+      % for every samples
+      for n = 1:fold_size
+        % inputs
+        x = input_data(1, FEATURES_INDEX);
+        % desired outputs / targets
+        d = input_data(1, CLASSES_INDEX)';
+        % remove the first used sample
+        input_data = input_data(2:end, :);
+        
+        % input-layer outputs are input vector
+        y{1}(1:NUM_FEATURES, 1) = x(1, 1:NUM_FEATURES)';
+        
+        % copy old weights
+        w_old = w;
+        
+        % forward pass
+        for l = 2:NUM_LAYERS
+          net{l} = w{l} * y{l-1};
+          y{l}(1:NUM_NODES_IN_LAYER(l)-1, 1) = arrayfun(@logistic, net{l}); % only actual nodes, except bias nodes
+        endfor
+        % correct outputs for confusion matrix
+        y_output = [y_output; y{OUTPUT_LAYER}'];
+        d_output = [d_output; d'];
+        % error
+        e = d - y{OUTPUT_LAYER};
+        Eav = Eav + (0.5 * sum(e.^2));
       endfor
-      % correct outputs for confusion matrix
-      y_output = [y_output; y{OUTPUT_LAYER}'];
-      d_output = [d_output; d'];
-      % error
-      e = d - y{OUTPUT_LAYER};
-      Eav = Eav + (0.5 * sum(e.^2));
-      
-      % show outputs
-%      printf("[EPOCH @ %d] ", Epoch);
-%      printf("x=");
-%      printf(mat2str(x, 2));
-%      printf(" (y=");
-%      printf(mat2str(y{OUTPUT_LAYER}, 2));
-%      printf(", d=");
-%      printf(mat2str(d));
-%      printf(")\n");
-
-  %    fprintf("] -- w{3} = ");
-  %    disp(mat2str(w{3}, 2));
-  %    disp(["w{2}=" mat2str(w{2})]);
-  %    disp(["w{3}=" mat2str(w{3})]);
-      
-      % backward pass
-      % local gradients at output layer
-      local_gradients{OUTPUT_LAYER} = e .* arrayfun(@derivative_logistic, y{OUTPUT_LAYER});
-      % local gradients at hidden layers
-      for l = NUM_LAYERS-1:-1:2
-        sum_gradients = w{l + 1}(:, 1:NUM_NODES_IN_LAYER(l)-1)' * local_gradients{l + 1};
-        local_gradients{l} = arrayfun(@derivative_logistic, y{l}(1:NUM_NODES_IN_LAYER(l)-1, :)) .*  sum_gradients;
-      endfor
-      
-      for l = 2:NUM_LAYERS
-        delta_w{l} = MOMENTUM .* (w{l} - w_old{l}) .+ LEARNING_RATE .* (local_gradients{l} * y{l-1}(1:NUM_NODES_IN_LAYER(l-1), 1)');
-        w{l} = w{l} + delta_w{l};
-      endfor
+      fitness( = Eav / fold_size;
+      avError = [avError Eav];
+      generation = generation + 1;
+      fflush(stdout);
     endfor
-    Eav = Eav / fold_size;
-    avError = [avError Eav];
-    Epoch = Epoch + 1;
-    
-%    disp("---");
-    fflush(stdout);
   endwhile
   
   avErrors{k} = avError;
@@ -147,12 +126,9 @@ for k = 1:K_fold
   
   % confusion matrix for training set
   if OPEN_FIGURES || SAVE_FIGURES
-    % Open figure for confusion matrices
-%    figure(k);
     figure(k, "Position", [0,0,500,180]);
     CONFUSION_MATRIX_NAME = "Training Set";
     CONFUSION_MATRIX_SUBPLOT_POSITION = 1;
-
     ConfusionMatrix;
   endif  
   
@@ -160,7 +136,7 @@ for k = 1:K_fold
   % shuffle samples for pick unique random x
   wdbc = test_sets{k};
   input_data = wdbc(randperm(size(wdbc,1)), 1:end);
-  % set Eav to 0 in each epoch
+  % set Eav to 0 in each generation
   Eav = 0;
   y_output = d_output = [];
   y = original_y;
@@ -193,12 +169,12 @@ for k = 1:K_fold
     ConfusionMatrix;
   endif  
     
-  Epochs(k) = Epoch;
+  generations(k) = generation;
   Eav_test(k) = Eav;
   weights{k} = w;
   y_outputs{k} = y_output;
   d_outputs{k} = d_output;
-  printf("{K = %d} #epoch=%d\tAverage Error (Train = %.4f) (Test = %.3f)\n", k, Epochs(k), Eav_train(k), Eav_test(k));
+  printf("{K = %d} #generation=%d\tAverage Error (Train = %.4f) (Test = %.3f)\n", k, generations(k), Eav_train(k), Eav_test(k));
 endfor
 
 PlotErrorGraph;
