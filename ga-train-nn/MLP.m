@@ -118,23 +118,32 @@ for k = 1:K_fold
       fflush(stdout);
     endfor % all chromosomes done
     % remapping : evaluate fitness of all chromosomes in a generation
-    fitness = evalaute_fitness (avError);
+    fitness = evaluate_fitness (avError);
     % crossover C(2,1) -> 2 parents give 1 child
     for xover = 1:NUM_CHROMOSOMES
       parent_indices = randperm(size(w,1), 2); % randomly select parents
       weight_parents{1} = weights{parent_indices(1)}; % father's chromosome
       weight_parents{2} = weights{parent_indices(2)}; % mother's chromosome
-      weight_child = weights_parents{1}; % take all weights from parent first
+      weight_child = weight_parents{1}; % take all weights from parent first
       for layer = 2:NUM_LAYERS
         for node = 1:NUM_NODES_IN_LAYER(layer)-1
           if (randperm(2, 1) == 2) % select weights from mother instead
-            weight_child{layer}(node) = weights_parents{2}{layer}(node);
+            weight_child{layer}(node) = weight_parents{2}{layer}(node);
           endif
         endfor
       endfor
       weight_children{xover} = weight_child;
-      chromosome_child = create_chromosome_vector (weight_child);
-      chromosome_children{xover} = chromosome_child; % append child
+    endfor
+    % mutation
+    for mutated = 1:NUM_CHROMOSOMES
+      for layer = 2:NUM_LAYERS
+        minAddedWeight = -1;
+        maxAddedWeight = 1;
+        randomAdded = (maxAddedWeight - (minAddedWeight)) .* rand(NUM_NODES_IN_LAYER(layer) - 1, NUM_NODES_IN_LAYER(layer-1)) + (minAddedWeight);
+        weight_children{mutated}{layer} = weight_children{mutated}{layer} + randomAdded;
+      endfor
+%      chromosome_child = create_chromosome_vector (weight_child, NUM_LAYERS);
+%      chromosome_children{mutated} = chromosome_child; % append child
     endfor
     weights = weight_children;
   endwhile
