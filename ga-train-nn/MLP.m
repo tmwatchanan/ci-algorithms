@@ -64,10 +64,10 @@ original_data = wdbc;
 % for each fold
 for k = 1:K_fold
   % load initial data for every k
-  w = original_w;
   y = original_y;
-  % chromosome
-  chromosome_prototype = create_chromosome_vector (w, NUM_LAYERS);
+  % weights
+  weights = cell(1, NUM_CHROMOSOMES);
+  weights(:) = {original_w};
   % initialize break-loop variables
   wdbc = training_sets{k};
   generation = 1;
@@ -76,7 +76,7 @@ for k = 1:K_fold
   while (Eav > EPSILON && generation < MAX_GENERATION)
     % for every chromosome (network weights)
     for c = 1:NUM_CHROMOSOMES
-      chromosome{c} = chromosome_prototype;
+      w = weights{c};
       % shuffle samples for pick unique random x
       input_data = wdbc(randperm(size(wdbc,1)), 1:end);
       % set the sum of squared errors to 0 in each 
@@ -116,9 +116,27 @@ for k = 1:K_fold
       avError = [avError Eav];
       generation = generation + 1;
       fflush(stdout);
-    endfor
-    % evaluate fitness of all chromosomes in a generation
+    endfor % all chromosomes done
+    % remapping : evaluate fitness of all chromosomes in a generation
     fitness = evalaute_fitness (avError);
+    % crossover C(2,1) -> 2 parents give 1 child
+    for xover = 1:NUM_CHROMOSOMES
+      parent_indices = randperm(size(w,1), 2); % randomly select parents
+      weight_parents{1} = weights{parent_indices(1)}; % father's chromosome
+      weight_parents{2} = weights{parent_indices(2)}; % mother's chromosome
+      weight_child = weights_parents{1}; % take all weights from parent first
+      for layer = 2:NUM_LAYERS
+        for node = 1:NUM_NODES_IN_LAYER(layer)-1
+          if (randperm(2, 1) == 2) % select weights from mother instead
+            weight_child{layer}(node) = weights_parents{2}{layer}(node);
+          endif
+        endfor
+      endfor
+      weight_children{xover} = weight_child;
+      chromosome_child = create_chromosome_vector (weight_child);
+      chromosome_children{xover} = chromosome_child; % append child
+    endfor
+    weights = weight_children;
   endwhile
   
   avErrors{k} = avError;
