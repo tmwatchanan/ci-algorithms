@@ -41,16 +41,10 @@ NUM_NODES_IN_LAYER = [NUM_FEATURES + 1; NUM_HIDDEN_NODES_IN_LAYER + 1; NUM_CLASS
 NUM_LAYERS = size(NUM_NODES_IN_LAYER, 1);
 OUTPUT_LAYER = NUM_LAYERS;
 
-function output = RandomWeight (fanin)
-  min = -1 / sqrt(fanin);
-  max = -min;
-  output = min + (max - min) * rand();
-endfunction
-
 % Initialize weights
 w = cell(NUM_LAYERS, 1);
 for l = 2:NUM_LAYERS
-  w{l} = arrayfun(@RandomWeight, ones(NUM_NODES_IN_LAYER(l) - 1, NUM_NODES_IN_LAYER(l - 1)));
+  w{l} = arrayfun(@random_weight, ones(NUM_NODES_IN_LAYER(l) - 1, NUM_NODES_IN_LAYER(l - 1)));
   delta_w{l} = ones(NUM_NODES_IN_LAYER(l) - 1, NUM_NODES_IN_LAYER(l - 1));
 endfor
 
