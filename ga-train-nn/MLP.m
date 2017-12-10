@@ -40,7 +40,7 @@ NUM_NODES_IN_LAYER = [NUM_FEATURES + 1; NUM_HIDDEN_NODES_IN_LAYER + 1; NUM_CLASS
 NUM_LAYERS = size(NUM_NODES_IN_LAYER, 1);
 OUTPUT_LAYER = NUM_LAYERS;
 
-% initialize weights
+% randomly initialize weights
 w = cell(NUM_LAYERS, 1);
 for l = 2:NUM_LAYERS
   w{l} = arrayfun(@random_weight, ones(NUM_NODES_IN_LAYER(l) - 1, NUM_NODES_IN_LAYER(l - 1)));
@@ -58,7 +58,7 @@ end
 original_w = w;
 original_y = y;
 original_data = wdbc;
-[training_sets, test_sets, N_fold] = split_k_fold (wdbc, K_fold);
+[training_sets, test_sets, _] = split_k_fold (wdbc, K_fold);
 % for each fold
 for k = 1:K_fold
   % load initial data for every k
@@ -77,8 +77,9 @@ for k = 1:K_fold
     % initialize arrays for confusion matrix
     y_output = [];
     d_output = [];
+    fold_size = size(input_data, 1);
     % for every samples
-    for n = 1:N_fold
+    for n = 1:fold_size
       % inputs
       x = input_data(1, FEATURES_INDEX);
       % desired outputs / targets
@@ -87,7 +88,7 @@ for k = 1:K_fold
       input_data = input_data(2:end, :);
       
       % input-layer outputs are input vector
-      y{1}(:, 1) = x(1, :)';
+      y{1}(1:NUM_FEATURES, 1) = x(1, 1:NUM_FEATURES)';
       
       % copy old weights
       w_old = w;
@@ -95,7 +96,7 @@ for k = 1:K_fold
       % forward pass
       for l = 2:NUM_LAYERS
         net{l} = w{l} * y{l-1};
-        y{l}(1:NUM_NODES_IN_LAYER(l)-1, 1) = arrayfun(@Logistic, net{l}); % only actual nodes, except bias nodes
+        y{l}(1:NUM_NODES_IN_LAYER(l)-1, 1) = arrayfun(@logistic, net{l}); % only actual nodes, except bias nodes
       endfor
       % correct outputs for confusion matrix
       y_output = [y_output; y{OUTPUT_LAYER}'];
@@ -133,7 +134,7 @@ for k = 1:K_fold
         w{l} = w{l} + delta_w{l};
       endfor
     endfor
-    Eav = Eav / N_fold;
+    Eav = Eav / fold_size;
     avError = [avError Eav];
     Epoch = Epoch + 1;
     
@@ -163,7 +164,8 @@ for k = 1:K_fold
   Eav = 0;
   y_output = d_output = [];
   y = original_y;
-  for n = 1:N_fold
+  fold_size = size(input_data, 1);
+  for n = 1:fold_size
     % inputs
     x = input_data(1, FEATURES_INDEX);
     % desired outputs / targets
@@ -171,7 +173,7 @@ for k = 1:K_fold
     % remove the first used sample
     input_data = input_data(2:end, :);
     % input-layer outputs are input vector
-    y{1}(FEATURES_INDEX, 1) = x(1, FEATURES_INDEX)';
+    y{1}(1:NUM_FEATURES, 1) = x(1, 1:NUM_FEATURES)';
     for l = 2:NUM_LAYERS
       net{l} = w{l} * y{l-1};
       y{l}(1:NUM_NODES_IN_LAYER(l)-1, 1) = arrayfun(@logistic, net{l}); % only actual nodes, except bias nodes
