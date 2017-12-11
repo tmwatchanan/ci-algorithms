@@ -8,4 +8,3 @@ for mutated = 1:NUM_CHROMOSOMES
 %  chromosome_child = create_chromosome_vector (weight_child, NUM_LAYERS);
 %  chromosome_children{mutated} = chromosome_child; % append child
 endfor
-weight_children_mutated 
