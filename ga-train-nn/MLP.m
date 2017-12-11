@@ -112,7 +112,7 @@ for k = 1:K_fold
     % remapping : evaluate fitness of all chromosomes in a generation
     fitness = evaluate_fitness (avError);
     crossover; % C(2,1) -> 2 parents give 1 child
-    mutation;
+    mutation; % mutate for every non-input nodes
     weights = weight_children;
   endwhile
   
