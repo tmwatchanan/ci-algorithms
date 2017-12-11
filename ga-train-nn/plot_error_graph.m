@@ -7,7 +7,7 @@ if SAVE_FIGURES
   for ik = 1:K_fold
     hL(ik) = plot(1:size(avErrors{ik}, 2), avErrors{ik}, 'LineWidth', 3, 'Color', cmap(ik, :));
     hold on;
-    xlabel('Epoch');
+    xlabel('Generation');
     ylabel('Error');
   endfor
   hold off;
