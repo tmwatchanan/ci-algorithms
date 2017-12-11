@@ -87,29 +87,21 @@ for k = 1:K_fold
       fold_size = size(input_data, 1);
       % for every samples
       for n = 1:fold_size
-        % inputs
-        x = input_data(1, FEATURES_INDEX);
-        % desired outputs / targets
-        d = input_data(1, CLASSES_INDEX)';
-        % remove the first used sample
-        input_data = input_data(2:end, :);
-        
-        % input-layer outputs are input vector
-        y{1}(1:NUM_FEATURES, 1) = x(1, 1:NUM_FEATURES)';
-        
-        % copy old weights
-        w_old = w;
+        x = input_data(1, FEATURES_INDEX); % inputs
+        d = input_data(1, CLASSES_INDEX)'; % desired outputs / targets
+        input_data = input_data(2:end, :); % remove the first used sample
+        y{1}(1:NUM_FEATURES, 1) = x(1, 1:NUM_FEATURES)'; % input-layer outputs are input vector
+        w_old = w; % copy old weights
         
         % forward pass
         for l = 2:NUM_LAYERS
           net{l} = w{l} * y{l-1};
           y{l}(1:NUM_NODES_IN_LAYER(l)-1, 1) = arrayfun(@logistic, net{l}); % only actual nodes, except bias nodes
         endfor
-        % correct outputs for confusion matrix
-        y_output = [y_output; y{OUTPUT_LAYER}'];
-        d_output = [d_output; d'];
-        % error
-        e = d - y{OUTPUT_LAYER};
+        
+        y_output = [y_output; y{OUTPUT_LAYER}']; % collect outputs for confusion matrix
+        d_output = [d_output; d']; % collect outputs for confusion matrix
+        e = d - y{OUTPUT_LAYER}; % error between desired and actual output
         E = E + (0.5 * sum(e.^2)); % sum of squared errors
       endfor
       Eav = E / fold_size; % mean squared error (MSE)
@@ -135,7 +127,7 @@ for k = 1:K_fold
     plot_confusion_matrix;
   endif  
   
-  % Test the validation set
+  % test the validation set
   % shuffle samples for pick unique random x
   wdbc = test_sets{k};
   input_data = wdbc(randperm(size(wdbc,1)), 1:end);
@@ -164,7 +156,7 @@ for k = 1:K_fold
     d_output = [d_output; d'];
   endfor
   
-  % Confusion matrix for validation set
+  % confusion matrix for validation set
   if OPEN_FIGURES || SAVE_FIGURES
     CONFUSION_MATRIX_NAME = 'Validation Set';
     CONFUSION_MATRIX_SUBPLOT_POSITION = 2;
