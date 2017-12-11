@@ -156,7 +156,7 @@ for k = 1:K_fold
     figure(k, "Position", [0,0,500,180]);
     CONFUSION_MATRIX_NAME = "Training Set";
     CONFUSION_MATRIX_SUBPLOT_POSITION = 1;
-    ConfusionMatrix;
+    plot_confusion_matrix;
   endif  
   
   % Test the validation set
@@ -192,7 +192,7 @@ for k = 1:K_fold
   if OPEN_FIGURES || SAVE_FIGURES
     CONFUSION_MATRIX_NAME = 'Validation Set';
     CONFUSION_MATRIX_SUBPLOT_POSITION = 2;
-    ConfusionMatrix;
+    plot_confusion_matrix;
   endif  
     
   generations(k) = generation;
