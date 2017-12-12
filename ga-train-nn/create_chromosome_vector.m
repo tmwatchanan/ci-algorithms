@@ -25,6 +25,6 @@
 function chromosome_prototype = create_chromosome_vector (weights, num_layers)
   chromosome_prototype = [];
   for layer = num_layers:-1:2
-    chromosome_prototype = [chromosome_prototype weights{layer}(:)'];
+    chromosome_prototype = [chromosome_prototype reshape(weights{layer},1,[])(end:-1:1)];
   endfor
 endfunction
