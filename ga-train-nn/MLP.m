@@ -22,6 +22,7 @@ CLASSES_INDEX = 2;
 FEATURES_INDEX = 3:size(wdbc, 2);
 % genetic algorithm (GA)
 NUM_CHROMOSOMES = 50;
+MUTATION_RATE = 0.05; % [0.001, 0.01]
 
 numHiddenNodesForString = sprintf("%g-" , NUM_HIDDEN_NODES_IN_LAYER);
 numHiddenNodesForString = numHiddenNodesForString(1:end-1);% strip final comma
