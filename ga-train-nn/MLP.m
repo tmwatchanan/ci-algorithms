@@ -26,7 +26,7 @@ MUTATION_RATE = 0.05; % [0.001, 0.01]
 
 numHiddenNodesForString = sprintf("%g-" , NUM_HIDDEN_NODES_IN_LAYER);
 numHiddenNodesForString = numHiddenNodesForString(1:end-1);% strip final comma
-SAVE_DIRNAME = [FILE_NAME "-lr" num2str(LEARNING_RATE) "-mo" num2str(MOMENTUM) "-node" num2str(numHiddenNodesForString)];
+SAVE_DIRNAME = [FILE_NAME "-ch" num2str(NUM_CHROMOSOMES) "-mu" num2str(MUTATION_RATE) "-node" num2str(numHiddenNodesForString)];
 
 % the number of samples
 N = size(wdbc, 1);
