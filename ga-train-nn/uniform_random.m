@@ -25,5 +25,5 @@
 function [random_number] = uniform_random (min, max, rows, cols)
   min = -1;
   max = 1;
-  random_number = (max - (min)) .* rows, cols) + (min);
+  random_number = (max - min) .* rand(rows, cols) + min;
 endfunction
