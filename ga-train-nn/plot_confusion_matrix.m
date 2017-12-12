@@ -43,7 +43,7 @@ xlabel('calculated class', 'fontsize', 9);
 text(x(:),y(:),textStrings(:),'HorizontalAlignment','center', 'fontsize', 18, 'fontweight', 'bold', 'fontname', 'Consolas');
 ylabel('desired class', 'fontsize', 9);
 text(x(:),y(:),textStrings(:),'HorizontalAlignment','center', 'fontsize', 18, 'fontweight', 'bold', 'fontname', 'Consolas');
-title([FILE_NAME ' ' CONFUSION_MATRIX_NAME ;'N=' num2str(NUM_CHROMOSOMES) ', p_m=' num2str(MUTATION_RATE) ', #hNodes=' numHiddenNodesForString; 'fold=' num2str(k) ', #generation=' num2str(generation) ; ' accuracy=' num2str(accuracy)]);
+title([FILE_NAME ' ' CONFUSION_MATRIX_NAME ;'N=' num2str(NUM_CHROMOSOMES) ', Pm=' num2str(MUTATION_RATE) ', #hNodes=' numHiddenNodesForString; 'fold=' num2str(k) ', #generation=' num2str(generation) ; ' accuracy=' num2str(accuracy)]);
 text(x(:),y(:),textStrings(:),'HorizontalAlignment','center', 'fontsize', 18, 'fontweight', 'bold', 'fontname', 'Consolas');
 hold off;
 
