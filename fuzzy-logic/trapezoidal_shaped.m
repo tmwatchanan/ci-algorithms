@@ -23,6 +23,7 @@
 ## Created: 2017-12-13
 
 function [f] = trapezoidal_shaped (x_input, shape, e)
+  warning ("off", "Octave:divide-by-zero");
   a = shape(1);
   b = shape(2);
   c = shape(3);
@@ -30,4 +31,5 @@ function [f] = trapezoidal_shaped (x_input, shape, e)
   A = @(x) max (0, min (min (e, (x - a) / (b - a)), ...
                                 (d - x) / (d - c)));
   f = arrayfun (A, x_input);
+  warning ("on", "Octave:divide-by-zero");
 endfunction
