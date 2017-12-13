@@ -1,3 +1,6 @@
+% max membership value of all fuzzy sets
+e = 1;
+
 % membership functions of light level fuzzy sets
 VD_params = [0 0 50 200];
 D_params = [100 150 900 950];

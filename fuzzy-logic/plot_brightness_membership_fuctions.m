@@ -1,11 +1,11 @@
 global_configs;
 
 x = 0:0.1:100;
-VL = trapezoidal_shaped (x, VL_params, 1);
-L = trapezoidal_shaped (x, L_params, 1);
-M = trapezoidal_shaped (x, M_params, 1);
-H = trapezoidal_shaped (x, H_params, 1);
-VH = trapezoidal_shaped (x, VH_params, 1);
+VL = trapezoidal_shaped (x, VL_params, e);
+L = trapezoidal_shaped (x, L_params, e);
+M = trapezoidal_shaped (x, M_params, e);
+H = trapezoidal_shaped (x, H_params, e);
+VH = trapezoidal_shaped (x, VH_params, e);
 figure('Name', 'Membership Functions of Screen Brightness Fuzzy Sets', "Position", [0,0,1000,500], 'NumberTitle', 'off');
 plot(x,VL, 'LineWidth', 2, ['r;Very Low fuzzy set params = '  mat2str(VL_params) ';']);
 hold on;
