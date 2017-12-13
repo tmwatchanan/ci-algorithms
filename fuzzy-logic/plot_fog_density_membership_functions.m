@@ -1,7 +1,6 @@
+global_configs;
+
 x = 0:0.1:3;
-Thin_params = [0 0 0.02 0.05];
-Medium_params = [0.03 0.08 0.25 0.3];
-Thick_params = [0.20 0.3 3.0 3.1];
 Thin = trapezoidal_shaped (x, Thin_const, 1);
 Medium = trapezoidal_shaped (x, Medium_const, 1);
 Thick = trapezoidal_shaped (x, Thick_const, 1);

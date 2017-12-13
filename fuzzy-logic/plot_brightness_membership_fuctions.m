@@ -1,9 +1,6 @@
+global_configs;
+
 x = 0:0.1:100;
-VL_params = [0 0 5 20];
-L_params = [5 20 30 45];
-M_params = [30 45 55 70];
-H_params = [55 70 80 95];
-VH_params = [80 95 100 101];
 VL = trapezoidal_shaped (x, VL_params, 1);
 L = trapezoidal_shaped (x, L_params, 1);
 M = trapezoidal_shaped (x, M_params, 1);

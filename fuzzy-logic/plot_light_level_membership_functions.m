@@ -1,9 +1,6 @@
+global_configs;
+
 x = 0:10:12000;
-VD_params = [0 0 50 200];
-D_params = [100 150 900 950];
-M_params = [900 950 2000 2100];
-B_params = [2000 2100 10000 11000];
-VB_params = [10000 11000 12000 12001];
 VD = trapezoidal_shaped (x, VD_params, 1);
 D = trapezoidal_shaped (x, D_params, 1);
 M = trapezoidal_shaped (x, M_params, 1);
