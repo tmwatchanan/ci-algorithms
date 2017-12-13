@@ -14,7 +14,7 @@
 ## along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ## -*- texinfo -*- 
-## @deftypefn {} {@var{retval} =} fog_density_membership_function (@var{input1}, @var{input2})
+## @deftypefn {} {@var{membership_value} =} fog_density_membership_function (@var{fuzzy_set}, @var{value})
 ##
 ## @seealso{}
 ## @end deftypefn
