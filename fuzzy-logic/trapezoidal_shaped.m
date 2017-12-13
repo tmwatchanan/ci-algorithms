@@ -22,14 +22,12 @@
 ## Author: Watchanan <Watchanan@WATCHANAN-DELL>
 ## Created: 2017-12-13
 
-function [f] = trapezoidal_shaped (x, [a,b,c,d], e)
-  if (a <= x && x <= b)
-    f = ((a - x) * e) / (a - b);
-  elseif (b <= x && x <= c)
-    f = e;
-  elseif (c <= x && x <= d)
-    f = ((d - x) * e) / (d - c);
-  else
-    f = 0;
-  endif
+function [f] = trapezoidal_shaped (x_input, shape, e)
+  a = shape(1);
+  b = shape(2);
+  c = shape(3);
+  d = shape(4);
+  A = @(x) max (0, min (min (e, (x - a) / (b - a)), ...
+                                (d - x) / (d - c)));
+  f = arrayfun (A, x_input);
 endfunction
