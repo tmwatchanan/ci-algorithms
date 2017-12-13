@@ -19,3 +19,8 @@ global L_params = [5 20 30 45];
 global M_params = [30 45 55 70];
 global H_params = [55 70 80 95];
 global VH_params = [80 95 100 101];
+
+% file configs
+global SAVE_FIGURE_DIRNAME = 'figures';
+global POSITION_FIGURE = [0,0,1000,500];
+global SAVE_FIGURE_SIZE = '-S1000,500';

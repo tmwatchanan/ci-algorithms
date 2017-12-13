@@ -1,4 +1,5 @@
 global_configs;
+save_figure_name = "membership_function_screen_brightness_fuzzy_sets.png";
 
 x = 0:0.1:100;
 VL = trapezoidal_shaped (x, VL_params, e);
@@ -6,7 +7,7 @@ L = trapezoidal_shaped (x, L_params, e);
 M = trapezoidal_shaped (x, M_params, e);
 H = trapezoidal_shaped (x, H_params, e);
 VH = trapezoidal_shaped (x, VH_params, e);
-figure('Name', 'Membership Functions of Screen Brightness Fuzzy Sets', "Position", [0,0,1000,500], 'NumberTitle', 'off');
+figure('Name', 'Membership Functions of Screen Brightness Fuzzy Sets', "Position", POSITION_FIGURE, 'NumberTitle', 'off');
 plot(x,VL, 'LineWidth', 2, ['r;Very Low fuzzy set params = '  mat2str(VL_params) ';']);
 hold on;
 plot(x,L, 'LineWidth', 2, ['g;Low fuzzy set params = '  mat2str(L_params) ';']);
@@ -21,3 +22,6 @@ xlabel('Brightness Level (%)', 'FontWeight', 'bold', 'fontsize', 14);
 ylabel('Degree of Membership', 'FontWeight', 'bold', 'fontsize', 14);
 ylim([-0.00 1.25]);
 grid;
+
+% save figure as a file
+print([SAVE_FIGURE_DIRNAME '\' save_figure_name],'-dpng', SAVE_FIGURE_SIZE);
