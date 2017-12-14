@@ -1,9 +1,9 @@
 %clear all;
 close all;
-global_configs;
+global_configs; 
 
-input_fog_density_value = 0.04;
-input_light_level_value = 900;
+input_fog_density_value = 0;
+input_light_level_value = 4900;
 
 % define fuzzy rules
 fuzzy_rules = [];

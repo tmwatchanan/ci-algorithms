@@ -33,7 +33,25 @@ Brightness.Moderate.mode = get_center_of_trapezoidal_shaped(Brightness.Moderate.
 Brightness.High.mode = get_center_of_trapezoidal_shaped(Brightness.High.params);
 Brightness.VeryHigh.mode = get_center_of_trapezoidal_shaped(Brightness.VeryHigh.params);
 
+global fuzzy_rules = [];
+fuzzy_rules = add_fuzzy_rule(fuzzy_rules, "Thin","VeryDark","VeryLow");
+fuzzy_rules = add_fuzzy_rule(fuzzy_rules, "Thin","Dark","Low");
+fuzzy_rules = add_fuzzy_rule(fuzzy_rules, "Thin","Medium","Moderate");
+fuzzy_rules = add_fuzzy_rule(fuzzy_rules, "Thin","Bright","High");
+fuzzy_rules = add_fuzzy_rule(fuzzy_rules, "Thin","VeryBright","VeryHigh");
+fuzzy_rules = add_fuzzy_rule(fuzzy_rules, "Medium","VeryDark","Moderate");
+fuzzy_rules = add_fuzzy_rule(fuzzy_rules, "Medium","Dark","Moderate");
+fuzzy_rules = add_fuzzy_rule(fuzzy_rules, "Medium","Medium","High");
+fuzzy_rules = add_fuzzy_rule(fuzzy_rules, "Medium","Bright","High");
+fuzzy_rules = add_fuzzy_rule(fuzzy_rules, "Medium","VeryBright","VeryHigh");
+fuzzy_rules = add_fuzzy_rule(fuzzy_rules, "Thick","VeryDark","VeryHigh");
+fuzzy_rules = add_fuzzy_rule(fuzzy_rules, "Thick","Dark","VeryHigh");
+fuzzy_rules = add_fuzzy_rule(fuzzy_rules, "Thick","Medium","VeryHigh");
+fuzzy_rules = add_fuzzy_rule(fuzzy_rules, "Thick","Bright","VeryHigh");
+fuzzy_rules = add_fuzzy_rule(fuzzy_rules, "Thick","VeryBright","VeryHigh");
+
 % file configs
-global SAVE_FIGURE_DIRNAME = 'figures';
+global SAVE_FIGURE_DIRNAME = "figures";
 global POSITION_FIGURE = [0,0,1000,500];
 global SAVE_FIGURE_SIZE = '-S1000,500';
+global SAVE_SIMULATION_FIGURE_DIRNAME = "simulations";
