@@ -23,14 +23,14 @@ FogDensity.Thick.params = [0.20 0.3 3.0 3.1];
 global Brightness;
 Brightness.fuzzy_sets = {"VeryLow"; "Low"; "Moderate"; "High"; "VeryHigh"};
 Brightness.VeryLow.params = [0 0 5 20];
-Brightness.VeryLow.mode = get_center_of_trapezoidal_shaped(Brightness.VeryLow.params);
 Brightness.Low.params = [5 20 30 45];
-Brightness.Low.mode = get_center_of_trapezoidal_shaped(Brightness.Low.params);
 Brightness.Moderate.params = [30 45 55 70];
-Brightness.Moderate.mode = get_center_of_trapezoidal_shaped(Brightness.Moderate.params);
 Brightness.High.params = [55 70 80 95];
-Brightness.High.mode = get_center_of_trapezoidal_shaped(Brightness.High.params);
 Brightness.VeryHigh.params = [80 95 100 101];
+Brightness.VeryLow.mode = get_center_of_trapezoidal_shaped(Brightness.VeryLow.params);
+Brightness.Low.mode = get_center_of_trapezoidal_shaped(Brightness.Low.params);
+Brightness.Moderate.mode = get_center_of_trapezoidal_shaped(Brightness.Moderate.params);
+Brightness.High.mode = get_center_of_trapezoidal_shaped(Brightness.High.params);
 Brightness.VeryHigh.mode = get_center_of_trapezoidal_shaped(Brightness.VeryHigh.params);
 
 % file configs
