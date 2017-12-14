@@ -26,16 +26,8 @@ function [membership_value] = light_level_membership_function (fuzzy_set, value)
   global e;
   global LightLevel;
   
-  if strcmp(fuzzy_set, "very_dark")
-    membership_value = trapezoidal_shaped(value, LightLevel.VeryDark.params, e);
-  elseif strcmp(fuzzy_set, "dark")
-    membership_value = trapezoidal_shaped(value, LightLevel.Dark.params, e);
-  elseif strcmp(fuzzy_set, "medium")
-    membership_value = trapezoidal_shaped(value, LightLevel.Medium.params, e);
-  elseif strcmp(fuzzy_set, "bright")
-    membership_value = trapezoidal_shaped(value, LightLevel.Bright.params, e);
-  elseif strcmp(fuzzy_set, "very_bright")
-    membership_value = trapezoidal_shaped(value, LightLevel.VeryBright.params, e);
+  if any(strcmp (LightLevel.fuzzy_sets, fuzzy_set))
+    membership_value = trapezoidal_shaped(value, LightLevel.(fuzzy_set).params, e);
   else
     error ("Invalid fuzzy set of light level membership functions\n");
   endif

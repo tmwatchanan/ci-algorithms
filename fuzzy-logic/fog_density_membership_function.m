@@ -26,12 +26,8 @@ function [membership_value] = fog_density_membership_function (fuzzy_set, value)
   global e;
   global FogDensity;
   
-  if strcmp(fuzzy_set, "thin")
-    membership_value = trapezoidal_shaped(value, FogDensity.Thin.params, e);
-  elseif strcmp(fuzzy_set, "medium")
-    membership_value = trapezoidal_shaped(value, FogDensity.Medium.params, e);
-  elseif strcmp(fuzzy_set, "thick")
-    membership_value = trapezoidal_shaped(value, FogDensity.Thick.params, e);
+  if any(strcmp (FogDensity.fuzzy_sets, fuzzy_set))
+    membership_value = trapezoidal_shaped(value, FogDensity.(fuzzy_set).params, e);
   else
     error ("Invalid fuzzy set of fog density membership functions\n");
   endif

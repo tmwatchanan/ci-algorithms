@@ -26,16 +26,8 @@ function [membership_value] = brightness_membership_function (fuzzy_set, value)
   global e;
   global Brightness;
   
-  if strcmp(fuzzy_set, "very_low")
-    membership_value = trapezoidal_shaped(value, Brightness.VeryLow.params, e);
-  elseif strcmp(fuzzy_set, "low")
-    membership_value = trapezoidal_shaped(value, Brightness.Low.params, e);
-  elseif strcmp(fuzzy_set, "moderate")
-    membership_value = trapezoidal_shaped(value, Brightness.Moderate.params, e);
-  elseif strcmp(fuzzy_set, "high")
-    membership_value = trapezoidal_shaped(value, Brightness.High.params, e);
-  elseif strcmp(fuzzy_set, "very_high")
-    membership_value = trapezoidal_shaped(value, Brightness.VeryHigh.params, e);
+  if any(strcmp (Brightness.fuzzy_sets, fuzzy_set))
+    membership_value = trapezoidal_shaped(value, Brightness.(fuzzy_set).params, e);
   else
     error ("Invalid fuzzy set of brightness membership functions\n");
   endif

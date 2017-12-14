@@ -23,8 +23,13 @@
 ## Author: Watchanan <Watchanan@WATCHANAN-DELL>
 ## Created: 2017-12-14
 
-function [fuzzy_rules] = add_fuzzy_rule (fuzzy_rules, input_fuzzy_set_1, input_fuzzy_set_2, output_fuzzy_set)
+function [fuzzy_rules] = add_fuzzy_rule (fuzzy_rules, input_fuzzy_set_1,...
+                    input_fuzzy_set_2, output_fuzzy_set)
+                    
+  global Brightness;
+  output_fuzzy_set_mode = Brightness.(output_fuzzy_set).mode;
+  
   new_rule_struct = struct ("fog_density", input_fuzzy_set_1, "light_level", input_fuzzy_set_2,...
-                            "brightness", output_fuzzy_set);
+                            "brightness", output_fuzzy_set, "output_mode", output_fuzzy_set_mode);
   fuzzy_rules = [fuzzy_rules; new_rule_struct];
 endfunction
