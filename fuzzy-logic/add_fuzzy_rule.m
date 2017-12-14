@@ -24,7 +24,7 @@
 ## Created: 2017-12-14
 
 function [fuzzy_rules] = add_fuzzy_rule (fuzzy_rules, input_fuzzy_set_1, input_fuzzy_set_2, output_fuzzy_set)
-  new_rule_struct = struct ("in1", input_fuzzy_set_1, "in2", input_fuzzy_set_2,...
-                            "out", output_fuzzy_set);
-  fuzzy_rules = [fuzzy_rules, new_rule_struct];
+  new_rule_struct = struct ("fog_density", input_fuzzy_set_1, "light_level", input_fuzzy_set_2,...
+                            "brightness", output_fuzzy_set);
+  fuzzy_rules = [fuzzy_rules; new_rule_struct];
 endfunction
