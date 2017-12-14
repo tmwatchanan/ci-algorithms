@@ -12,7 +12,7 @@ for i = 1:length(illuminance_inputs)
 endfor
 
 % plot figure
-figure('Name', "Simulation from 8:00 to 24:00 -> Illuminance & Brightness", 'Position', POSITION_FIGURE, 'NumberTitle', 'off');
+figure('Name', "Simulation from 8:00 to 24:00 -> Illuminance & LWC VS Brightness", 'Position', POSITION_FIGURE, 'NumberTitle', 'off');
 subplot (2, 1, 1)
 [ax1, h1, h2] = plotyy (x, y, x, lwc_inputs);
 title('Day-to-day simulation', 'fontsize', 16)
@@ -31,7 +31,6 @@ set([h3 h4],'LineWidth',2);
 xlabel('Time from 8:00 to 24:00', 'FontWeight', 'bold', 'fontsize', 14);
 ylabel(ax2(1), 'Brightness Level (%)', 'FontWeight', 'bold', 'fontsize', 14);
 ylabel(ax2(2), 'Light Level (lux)', 'FontWeight', 'bold', 'fontsize', 14);
-axis ([8, 24]);
 
 save_figure_name = "day-to-day-sim-8-to-24";
 print([SAVE_SIMULATION_FIGURE_DIRNAME '\' save_figure_name],'-dpng', SAVE_FIGURE_SIZE);
