@@ -1,7 +1,7 @@
 for xover = 1:NUM_CHROMOSOMES
-  parent_indices = randperm(size(w,1), 2); % randomly select parents
-  weight_parents{1} = weights{parent_indices(1)}; % father's chromosome
-  weight_parents{2} = weights{parent_indices(2)}; % mother's chromosome
+  parent_indices = randperm(size(mating_pool,1), 2); % randomly select parents
+  weight_parents{1} = mating_pool{parent_indices(1)}; % father's chromosome
+  weight_parents{2} = mating_pool{parent_indices(2)}; % mother's chromosome
   weight_child = weight_parents{1}; % take all weights from parent first
   for layer = 2:NUM_LAYERS
     for node = 1:NUM_NODES_IN_LAYER(layer)-1

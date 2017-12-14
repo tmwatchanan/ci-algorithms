@@ -22,8 +22,6 @@
 ## Author: Watchanan <Watchanan@WATCHANAN-DELL>
 ## Created: 2017-12-12
 
-function [random_number] = uniform_random (min, max, rows, cols)
-  min = -1;
-  max = 1;
+function [random_number] = uniform_random (min, max, rows=1, cols=1)
   random_number = (max - min) .* rand(rows, cols) + min;
 endfunction

@@ -23,5 +23,6 @@
 ## Created: 2017-12-10
 
 function [fitness] = evaluate_fitness (mse) % mse = mean squared error
-  fitness = max(mse) - mse;
+  K = 1;
+  fitness = 1 / (K + mse);
 endfunction
