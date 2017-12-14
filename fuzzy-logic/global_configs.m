@@ -17,7 +17,7 @@ global FogDensity;
 FogDensity.fuzzy_sets = {"Thin"; "Medium"; "Thick"};
 FogDensity.Thin.params = [0 0 0.02 0.05];
 FogDensity.Medium.params = [0.03 0.08 0.25 0.3];
-FogDensity.Thick.params = [0.20 0.3 3.0 3.1];
+FogDensity.Thick.params = [0.20 0.3 0.4 0.5];
 
 % membership functions of brightness fuzzy sets
 global Brightness;

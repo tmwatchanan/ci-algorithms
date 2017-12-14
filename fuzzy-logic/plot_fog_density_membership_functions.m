@@ -1,7 +1,7 @@
 global_configs;
 save_figure_name = "membership_function_fog_density_fuzzy_sets.png";
 
-x = 0:0.1:3;
+x = 0:0.01:0.4;
 Thin = trapezoidal_shaped (x, FogDensity.Thin.params, e);
 Medium = trapezoidal_shaped (x, FogDensity.Medium.params, e);
 Thick = trapezoidal_shaped (x, FogDensity.Thick.params, e);
