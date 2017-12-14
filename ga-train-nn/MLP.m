@@ -5,14 +5,18 @@ more off;
 OPEN_FIGURES = 0;
 SAVE_FIGURES = 1;
 % parameters setup
-NUM_HIDDEN_NODES_IN_LAYER = [8];
-LEARNING_RATE = 0.5;
-MOMENTUM = 0.5;
-K_fold = 10; % 0
-BIAS_VALUE = 1;
+NUM_HIDDEN_NODES_IN_LAYER = [5];
+% genetic algorithm (GA)
+NUM_CHROMOSOMES = 70;
+MUTATION_RATE = 0.05; % [0.001, 0.01]
 % condition-break constants
 EPSILON = 1e-2;
-MAX_GENERATION = 500;
+MAX_GENERATION = 200;
+% MLP
+BIAS_VALUE = 1;
+% cross validation
+K_fold = 10; % 0 for no cross validation
+
 % Read data from file wdbc.data = Wisconsin Diagnostic Breast Cancer (WDBC)
 FILE_NAME = "wdbc-numeric.data";
 wdbc = dlmread(FILE_NAME, ",");
@@ -20,9 +24,6 @@ NUM_FEATURES = 30;
 NUM_CLASSES = 2;
 CLASSES_INDEX = 2;
 FEATURES_INDEX = 3:size(wdbc, 2);
-% genetic algorithm (GA)
-NUM_CHROMOSOMES = 50;
-MUTATION_RATE = 0.05; % [0.001, 0.01]
 
 numHiddenNodesForString = sprintf("%g-" , NUM_HIDDEN_NODES_IN_LAYER);
 numHiddenNodesForString = numHiddenNodesForString(1:end-1);% strip final comma
