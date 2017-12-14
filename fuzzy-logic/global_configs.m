@@ -1,4 +1,4 @@
-clear all;
+clear all; % for re-define global variables
 
 % max membership value of all fuzzy sets
 global e = 1;
@@ -32,10 +32,6 @@ Brightness.High.params = [55 70 80 95];
 Brightness.High.mode = get_center_of_trapezoidal_shaped(Brightness.High.params);
 Brightness.VeryHigh.params = [80 95 100 101];
 Brightness.VeryHigh.mode = get_center_of_trapezoidal_shaped(Brightness.VeryHigh.params);
-Brightness.fuzzy_set_modes = zeros(size(Brightness.fuzzy_sets, 1),1);
-for j = 1:size(Brightness.fuzzy_sets,1)
-  Brightness.fuzzy_set_modes(j) = Brightness.(Brightness.fuzzy_sets{j}).mode;
-endfor
 
 % file configs
 global SAVE_FIGURE_DIRNAME = 'figures';
