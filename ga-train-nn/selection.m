@@ -1,7 +1,7 @@
 % sort by fitness in ascending order
 [sorted_fitness, sorted_indices] = sort(fitness);
-Min = 1.5;
-Max = 0.5;
+Min = 0.5;
+Max = 1.5;
 sorted_chromosomes = weight_chromosomes(sorted_indices);
 
 % linear ranking selection

@@ -1,18 +1,35 @@
 close all;
 clear all;
 more off;
-tic;
+%tic;
+
+run_params_HIDDEN{1} = [5];
+run_params_HIDDEN{2} = [1];
+run_params_HIDDEN{3} = [2];
+run_params_HIDDEN{4} = [3];
+run_params_HIDDEN{5} = [4];
+run_params_HIDDEN{6} = [6];
+run_params_HIDDEN{7} = [7];
+run_params_HIDDEN{8} = [8];
+run_params_HIDDEN{9} = [2;2];
+run_params_HIDDEN{10} = [2;4];
+run_params_HIDDEN{11} = [4;2];
+run_params_HIDDEN{12} = [4;4];
+run_params_HIDDEN{13} = [4;4;4];
+
+for SUPER_LOOP = 1:size(run_params_HIDDEN,2)
+
 % Saving figures
 OPEN_FIGURES = 0;
 SAVE_FIGURES = 1;
 % parameters setup
-NUM_HIDDEN_NODES_IN_LAYER = [5];
+%NUM_HIDDEN_NODES_IN_LAYER = [5];
+NUM_HIDDEN_NODES_IN_LAYER = run_params_HIDDEN{SUPER_LOOP};
 % genetic algorithm (GA)
-NUM_CHROMOSOMES = 70;
+NUM_CHROMOSOMES = 30;
 MUTATION_RATE = 0.05; % [0.001, 0.01]
 % condition-break constants
-EPSILON = 1e-2;
-MAX_GENERATION = 100;
+MAX_GENERATION = 30;
 % MLP
 BIAS_VALUE = 1;
 % cross validation
@@ -23,7 +40,7 @@ FILE_NAME = "wdbc-numeric.data";
 wdbc = dlmread(FILE_NAME, ",");
 NUM_FEATURES = 30;
 NUM_CLASSES = 2;
-CLASSES_INDEX = 2;
+CLASSES_INDEX = 1:2;
 FEATURES_INDEX = 3:size(wdbc, 2);
 
 numHiddenNodesForString = sprintf("%g-" , NUM_HIDDEN_NODES_IN_LAYER);
@@ -113,6 +130,9 @@ for k = 1:K_fold
       endfor % done every samples
       MSE(c) = E / fold_size; % mean squared error
       fitness(c) = evaluate_fitness (MSE(c)); % remapping from MSE to fitness
+      % store output for confusion matrix
+      y_output_last_gen_of_chromosome{c} = y_output;
+      d_output_last_gen_of_chromosome{c} = d_output;
     endfor % done all chromosomes
     weights_of_gen{generation} = weight_chromosomes;
     average_MSE_of_gen(generation) = sum(MSE) / fold_size;
@@ -132,6 +152,8 @@ for k = 1:K_fold
     figure(k, "Position", [0,0,500,180]);
     CONFUSION_MATRIX_NAME = "Training Set";
     CONFUSION_MATRIX_SUBPLOT_POSITION = 1;
+    y_output = y_output_last_gen_of_chromosome{best_chromosome_of_gen(end)};
+    d_output = d_output_last_gen_of_chromosome{best_chromosome_of_gen(end)};
     plot_confusion_matrix;
   endif  
  
@@ -185,4 +207,6 @@ endfor
 [_, best_k] = min(MSE_test_best_chromosome);
 %printf("[Best performance @ k = %d] ------\n(train error\t= %.4f)\n(test error\t= %.3f)\n", best_k, Eav_train(best_k), Eav_test(best_k));
 printf("[Best performance @ k = %d] ------\n", best_k);
-toc;
+%toc;
+
+endfor
