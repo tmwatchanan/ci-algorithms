@@ -3,19 +3,23 @@ clear all;
 more off;
 %tic;
 
-run_params_HIDDEN{1} = [0];
-run_params_HIDDEN{2} = [1];
-run_params_HIDDEN{3} = [2];
-run_params_HIDDEN{4} = [3];
-run_params_HIDDEN{5} = [4];
-run_params_HIDDEN{6} = [6];
-run_params_HIDDEN{7} = [7];
-run_params_HIDDEN{8} = [8];
-run_params_HIDDEN{9} = [2;2];
-run_params_HIDDEN{10} = [2;4];
-run_params_HIDDEN{11} = [4;2];
-run_params_HIDDEN{12} = [4;4];
-run_params_HIDDEN{13} = [4;4;4];
+run_params_HIDDEN{1} = [2];
+run_params_HIDDEN{2} = [4];
+run_params_HIDDEN{3} = [6];
+
+%run_params_HIDDEN{1} = [0];
+%run_params_HIDDEN{2} = [2];
+%run_params_HIDDEN{3} = [4];
+%run_params_HIDDEN{4} = [6];
+%run_params_HIDDEN{5} = [4];
+%run_params_HIDDEN{6} = [6];
+%run_params_HIDDEN{7} = [7];
+%run_params_HIDDEN{8} = [8];
+%run_params_HIDDEN{9} = [2;2];
+%run_params_HIDDEN{10} = [2;4];
+%run_params_HIDDEN{11} = [4;2];
+%run_params_HIDDEN{12} = [4;4];
+%run_params_HIDDEN{13} = [4;4;4];
 
 for SUPER_LOOP = 1:size(run_params_HIDDEN,2)
 
