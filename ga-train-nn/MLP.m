@@ -3,7 +3,7 @@ clear all;
 more off;
 %tic;
 
-run_params_HIDDEN{1} = [5];
+run_params_HIDDEN{1} = [0];
 run_params_HIDDEN{2} = [1];
 run_params_HIDDEN{3} = [2];
 run_params_HIDDEN{4} = [3];
@@ -26,10 +26,10 @@ SAVE_FIGURES = 1;
 %NUM_HIDDEN_NODES_IN_LAYER = [5];
 NUM_HIDDEN_NODES_IN_LAYER = run_params_HIDDEN{SUPER_LOOP};
 % genetic algorithm (GA)
-NUM_CHROMOSOMES = 30;
+NUM_CHROMOSOMES = 50;
 MUTATION_RATE = 0.05; % [0.001, 0.01]
 % condition-break constants
-MAX_GENERATION = 30;
+MAX_GENERATION = 150;
 % MLP
 BIAS_VALUE = 1;
 % cross validation
@@ -93,6 +93,7 @@ for k = 1:K_fold
   % initialize break-loop variables
   wdbc = training_sets{k};
   generation = 1;
+  fitness_all_gen_in_one_fold = [];
   % [train] the validation set -------------------------------------------------
   while (generation < MAX_GENERATION)
     generation
@@ -134,6 +135,7 @@ for k = 1:K_fold
       y_output_last_gen_of_chromosome{c} = y_output;
       d_output_last_gen_of_chromosome{c} = d_output;
     endfor % done all chromosomes
+    fitness_all_gen_in_one_fold = [fitness_all_gen_in_one_fold, sum(fitness)];
     weights_of_gen{generation} = weight_chromosomes;
     average_MSE_of_gen(generation) = sum(MSE) / fold_size;
     [_, best_chromosome_of_gen(generation)] = max(fitness);
@@ -143,6 +145,8 @@ for k = 1:K_fold
     weight_chromosomes = weight_children;
     generation = generation + 1;
   endwhile
+  average_fitness_all_gen_in_one_fold = fitness_all_gen_in_one_fold ./ NUM_CHROMOSOMES;
+  average_fitness_of_k_fold{k} = average_fitness_all_gen_in_one_fold;
   
   % pick the best chromosome of fold k
   w = weights_of_gen{end}{best_chromosome_of_gen(end)};
@@ -199,10 +203,11 @@ for k = 1:K_fold
   y_outputs{k} = y_output;
   d_outputs{k} = d_output;
 %  printf("{K = %d} #generation=%d\tAverage Error (Train = %.4f) (Test = %.3f)\n", k, generations(k), Eav_train(k), Eav_test(k));
-printf("{K = %d} #generation=%d\tAverage Error\n", k, generations(k));
+printf("{K = %d} #generation=%d\t\n", k, generations(k));
 endfor
 
 %plot_error_graph;
+plot_fitness;
 
 [_, best_k] = min(MSE_test_best_chromosome);
 %printf("[Best performance @ k = %d] ------\n(train error\t= %.4f)\n(test error\t= %.3f)\n", best_k, Eav_train(best_k), Eav_test(best_k));
