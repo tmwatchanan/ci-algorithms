@@ -8,7 +8,6 @@ sorted_chromosomes = weight_chromosomes(sorted_indices);
 for i = 1:NUM_CHROMOSOMES
   p(i) = (Min + (Max-Min)*(i-1)/(NUM_CHROMOSOMES-1)) / NUM_CHROMOSOMES;
 endfor
-
 n = p * NUM_CHROMOSOMES;
 
 mating_pool = {};
