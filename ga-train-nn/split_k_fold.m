@@ -28,8 +28,9 @@ function [training_sets, test_sets, fold_size] = split_k_fold (data, k)
   % #samples of the data
   N = size(data, 1);
   fold_size = ceil(N / k);
+  test_size = floor(N / k);
   head = 1;
-  tail = head + fold_size - 1;
+  tail = head + test_size - 1;
   for i = 1:k
     data_tmp = data;
     test_set_indices = head:tail;
